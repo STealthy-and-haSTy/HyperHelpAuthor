@@ -70,26 +70,27 @@ def _make_help_index(package, doc_root, index_path):
     """
     template = format_template(
         """
-        {
-            "description": "Help for %s Package",
-            "doc_root": "%s",
-            "help_files": {
-                "index.txt": [
-                    "Index file for %s package",
+        {{
+            "description": "Help for {pkg} Package",
+            "doc_root": "{root}",
 
-                    {
+            "help_files": {{
+                "index.txt": [
+                    "Index file for {pkg} package",
+
+                    {{
                         "topic": "index.txt",
-                        "caption": "Index file"
-                    }
+                        "caption": "Index file",
+                        "aliases": ["index file"]
+                    }}
                 ]
-            },
+            }},
+
             "help_contents": [
                 "index.txt"
             ]
-        }
-        """,
-        package, doc_root, package)
-
+        }}
+        """.format(pkg=package, root=doc_root))
     with codecs.open(index_path, 'w', 'utf-8') as handle:
         handle.write(template)
 
@@ -100,13 +101,12 @@ def _make_root_help(package, help_path):
     """
     template = format_template(
         """
-        %%hyperhelp title="Index file for %s package" date="%s"
+        %%hyperhelp title="Index file for {pkg} package" date="{date}"
 
-        This is the root help file for the '%s' package.
-        """,
-        package,
-        datetime.date.today().strftime("%Y-%m-%d"),
-        package)
+        This is the root help file for the '{pkg}' package.
+        """.format(
+            pkg=package,
+            date=datetime.date.today().strftime("%Y-%m-%d")))
 
     with codecs.open(help_path, 'w', 'utf-8') as handle:
         handle.write(template)
@@ -334,7 +334,8 @@ class HyperhelpAuthorCreateIndex(sublime_plugin.WindowCommand):
                                         "topic": "index.txt"})
 
 
-            except:
+            except Exception as err:
+                log("Error: %s", str(err))
                 return _error_dialog(
                     """
                     Error adding help to package:
