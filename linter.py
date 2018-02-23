@@ -3,6 +3,7 @@ import sublime_plugin
 
 import os
 from collections import OrderedDict, namedtuple
+import codecs
 
 from hyperhelp.common import log, hh_syntax
 from hyperhelp.core import help_index_list, lookup_help_topic
@@ -154,7 +155,7 @@ def get_lint_file(filename):
 
     content = None
     try:
-        with open(filename, 'r') as file:
+        with codecs.open(filename, 'r', encoding='utf-8') as file:
             content = file.read()
     except:
         pass
@@ -223,6 +224,7 @@ def display_lint(window, pkg_info, output):
     """
     view = window.create_output_panel("HyperHelpAuthor Lint", False)
     basedir = os.path.join(sublime.packages_path(), pkg_info.doc_root)
+    print(view.encoding())
 
     if not isinstance(output, str):
         output = "\n".join(output)
@@ -252,9 +254,11 @@ class MissingLinkAnchorLinter(LinterBase):
     def lint(self, view, file_name):
         topics = self.pkg_info.help_topics
 
+        print("Linting: %s" % file_name)
         regions = view.find_by_selector("meta.link, meta.anchor")
         for pos in regions:
             link = view.substr(pos)
+            print('linting %s' % link)
             if lookup_help_topic(self.pkg_info, link) is not None:
                 continue
 
@@ -262,8 +266,7 @@ class MissingLinkAnchorLinter(LinterBase):
             if view.match_selector(pos.begin(), "meta.anchor"):
                 stub = "anchor '%s' is not in the help index"
 
-            self.add(view, "warning", file_name, pos.begin(),
-                     stub % link.replace("\t", " "))
+            self.add(view, "warning", file_name, pos.begin(), stub % link)
 
 
 class MissingHelpSourceLinter(LinterBase):
