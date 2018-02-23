@@ -8,7 +8,7 @@
     // editing and have the usual syntax settings applied to them.
     //
     // The settings here can be used to override the syntax to make editing
-    // easier, for example enabling the ruler
+    // easier, for example enabling the ruler.
     "author_view_settings": {
         "rulers": [80],
         "match_selection": true,

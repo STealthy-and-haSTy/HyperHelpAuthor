@@ -13,9 +13,9 @@
         ]
     },
 
-    // Insert a tab when spacebar is pressed inside links, anchors and key binds
+    // Insert a non-breaking space when spacebar is pressed inside links, anchors and key binds
     {
-        "keys": [" "], "command": "insert", "args": { "characters": "\t" },
+        "keys": [" "], "command": "insert", "args": { "characters": "\u00a0" },
         "context": [
             { "key": "selector", "operator": "equal", "operand": "text.hyperhelp.help & (meta.link | punctuation.link.end | meta.anchor | punctuation.anchor.end | meta.keybind | punctuation.keybind.end)" }
         ]
