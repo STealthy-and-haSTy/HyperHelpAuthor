@@ -21,6 +21,27 @@
         ]
     },
 
+    // Insert a non-breaking space when spacebar is pressed after a vertical pipe that
+    // doesn't have an immediately adjacent closing pipe (i.e. not inside of a link).
+    {
+        "keys": [" "], "command": "insert", "args": { "characters": "\u00a0" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "text.hyperhelp.help" },
+            { "key": "preceding_text", "operator": "regex_contains", "operand": "\\|$"},
+            { "key": "following_text", "operator": "not_regex_match", "operand": "^\\|"}
+        ]
+    },
+
+    // Insert a non-breaking space when spacebar is pressed when the following
+    // character is a pipe and we're not inside of a link.
+    {
+        "keys": [" "], "command": "insert", "args": { "characters": "\u00a0" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "text.hyperhelp.help - punctuation.link.end" },
+            { "key": "following_text", "operator": "regex_contains", "operand": "^|"},
+        ]
+    },
+
     // Auto pair characters in key bindings.
     { "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<$0>"}, "context":
         [
