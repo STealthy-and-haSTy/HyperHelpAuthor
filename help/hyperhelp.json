@@ -1,4 +1,5 @@
 {
+    "package": "HyperHelpAuthor",
     "description": "HyperHelp Authoring Tools",
 
     "doc_root": "help/",
