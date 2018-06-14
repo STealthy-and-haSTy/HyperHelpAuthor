@@ -12,6 +12,12 @@ from hyperhelp.core import help_index_list, lookup_help_topic
 ###----------------------------------------------------------------------------
 
 
+# TODO: The code in help_index.py uses posixpath as the path module instead of
+# os.path because in packages all files are posix. There is probably going to
+# be interplay with that in this code in an unfortunate way since it needs to
+# work with local files and match them to resources.
+
+
 # A representation of what is going to be linted.
 LintTarget = namedtuple("LintTarget", [
     "target_type", "pkg_info", "files"
@@ -93,9 +99,14 @@ def can_lint_view(view):
             view.file_name().startswith(sublime.packages_path()) and
             view.match_selector(0, "text.hyperhelp")):
 
+        # Make the path relative to the packages folder, then throw the
+        # filename away, which should be a document root.
         name = os.path.relpath(view.file_name(), sublime.packages_path())
-        pkg_name = name[:name.index(os.sep)]
-        return pkg_name in help_index_list()
+        name = os.path.split(name)[0]
+
+        for info in help_index_list().values():
+            if info.doc_root == name:
+                return True
 
     return False
 
@@ -108,11 +119,15 @@ def find_lint_target(view):
     if not can_lint_view(view):
         return None
 
-    name = view.file_name()
-    parts = os.path.relpath(name, sublime.packages_path()).split(os.sep)
+    # Make the path relative to the packages folder, then get both the path
+    # and the file name parts.
+    name = os.path.relpath(view.file_name(), sublime.packages_path())
+    name, target = os.path.split(name)
 
-    pkg_name = parts[0]
-    target = parts[-1]
+    # Use the location as the document root to find the appropriate package.
+    for info in help_index_list().values():
+        if info.doc_root == name:
+            pkg_name = info.package
 
     pkg_info = help_index_list().get(pkg_name)
 
@@ -224,7 +239,7 @@ def display_lint(window, pkg_info, output):
     """
     view = window.create_output_panel("HyperHelpAuthor Lint", False)
     basedir = os.path.join(sublime.packages_path(), pkg_info.doc_root)
-    print(view.encoding())
+    # print("encoding:", view.encoding())
 
     if not isinstance(output, str):
         output = "\n".join(output)
@@ -258,7 +273,7 @@ class MissingLinkAnchorLinter(LinterBase):
         regions = view.find_by_selector("meta.link, meta.anchor")
         for pos in regions:
             link = view.substr(pos)
-            print('linting %s' % link)
+            # print('linting %s' % link)
             if lookup_help_topic(self.pkg_info, link) is not None:
                 continue
 
