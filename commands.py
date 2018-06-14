@@ -22,6 +22,12 @@ from .linter import get_lint_file, format_lint
 ###----------------------------------------------------------------------------
 
 
+# TODO: The code in help_index.py uses posixpath as the path module instead of
+# os.path because in packages all files are posix. There is probably going to
+# be interplay with that in this code in an unfortunate way since it needs to
+# work with local files and match them to resources.
+
+
 # Match a help header line focusing on the date field.
 _header_date_re = re.compile(r'^(%hyperhelp.*\bdate=")(\d{4}-\d{2}-\d{2})(".*)')
 
@@ -71,6 +77,7 @@ def _make_help_index(package, doc_root, index_path):
     template = format_template(
         """
         {{
+            "package": "{pkg}",
             "description": "Help for {pkg} Package",
             "doc_root": "{root}",
 
@@ -431,12 +438,17 @@ class HyperhelpAuthorReloadIndexCommand(sublime_plugin.TextCommand):
         if filename is None:
             return log("Cannot reload help index; not in package", status=True)
 
+        # Make the filename be relative to the Packages folder.
         filename = os.path.relpath(filename, sublime.packages_path())
-        package = os.path.split(filename)[0].split(os.sep)[0]
+        filename = os.path.join("Packages/", filename)
 
-        # If package is missing, force a complete rescan.
-        if package not in help_index_list():
-            package = None
+        # Flip the help index structure so we can look up the package based on
+        # the index file instead of the other way around.
+        indexes = {value.index_file: key for key, value in help_index_list().items()}
+
+        # If this index is known, reload it's package; otherwise rescan all
+        # packages in order to bring this one in.
+        package = None if filename not in indexes else indexes[filename]
 
         help_index_list(reload=True, package=package)
 
