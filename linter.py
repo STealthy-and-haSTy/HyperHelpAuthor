@@ -7,6 +7,7 @@ import codecs
 
 from hyperhelp.common import log, hh_syntax
 from hyperhelp.core import help_index_list, lookup_help_topic
+from hyperhelp.core import parse_anchor_body, parse_link_body
 
 
 ###----------------------------------------------------------------------------
@@ -270,19 +271,66 @@ class MissingLinkAnchorLinter(LinterBase):
         topics = self.pkg_info.help_topics
 
         print("Linting: %s" % file_name)
-        regions = view.find_by_selector("meta.link, meta.anchor")
-        for pos in regions:
-            link = view.substr(pos)
-            # print('linting %s' % link)
-            if lookup_help_topic(self.pkg_info, link) is not None:
-                continue
 
-            stub = "link references unknown anchor '%s'"
-            if view.match_selector(pos.begin(), "meta.anchor"):
-                stub = "anchor '%s' is not in the help index"
+        for pos in view.find_by_selector("meta.anchor"):
+            self.lint_anchor(view, file_name, pos)
 
-            self.add(view, "warning", file_name, pos.begin(), stub % link)
+        for pos in view.find_by_selector("meta.link"):
+            self.lint_link(view, file_name, pos)
 
+    def lint_anchor(self, view, file_name, pos):
+        topic, text = parse_anchor_body(view.substr(pos))
+        index_info = lookup_help_topic(self.pkg_info, topic)
+
+        if index_info is not None:
+            if index_info["file"] != file_name:
+                self.add(view, "error", file_name, pos.begin(),
+                    "The topic '%s' is defined in another file ('%s')" ,
+                    topic, index_info["file"])
+            return
+
+        if topic.startswith("_"):
+            if topic == "_none":
+                return
+
+            self.add(view, "warning", file_name, pos.begin(),
+                "The topic id '%s' is reserved for internal use",
+                topic)
+            return
+
+        self.add(view, "warning", file_name, pos.begin(),
+            "anchor '%s' was not found in the help index" % topic)
+
+    def lint_link(self, view, file_name, pos):
+        link_body = view.substr(pos)
+        pkg, topic, text = parse_link_body(link_body)
+
+        if topic is None:
+            self.add(view, "error", file_name, pos.begin(),
+                "Malformed link; not enough ':' characters ('%s')",
+                link_body)
+            return
+
+        link_pkg = self.pkg_info if pkg is None else help_index_list().get(pkg)
+
+        if link_pkg is None:
+            self.add(view, "error", file_name, pos.begin(),
+                "Link references a topic in a non-existant package ('%s')",
+                pkg)
+            return
+
+        index_info = lookup_help_topic(link_pkg, topic)
+        if index_info is not None:
+            file = index_info["file"]
+            if file in link_pkg.package_files and not sublime.find_resources(file):
+                self.add(view, "warning", file_name, pos.begin(),
+                    "Link references a non-existant package file ('%s')",
+                    file)
+            return
+
+        self.add(view, "warning", file_name, pos.begin(),
+            "link references unknown anchor '%s'",
+            topic)
 
 class MissingHelpSourceLinter(LinterBase):
     """
