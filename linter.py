@@ -8,6 +8,7 @@ import codecs
 from hyperhelp.common import log, hh_syntax
 from hyperhelp.core import help_index_list, lookup_help_topic
 from hyperhelp.core import parse_anchor_body, parse_link_body
+from hyperhelp.core import is_topic_file_valid
 
 
 ###----------------------------------------------------------------------------
@@ -148,7 +149,8 @@ def get_linters(target):
     by user settings.
     """
     linters = []
-    linters.append(MissingLinkAnchorLinter(target.pkg_info))
+    linters.append(HelpAnchorLinter(target.pkg_info))
+    linters.append(HelpLinkLinter(target.pkg_info))
 
     if target.target_type == "package":
         linters.append(MissingHelpSourceLinter(target.pkg_info))
@@ -262,75 +264,83 @@ def display_lint(window, pkg_info, output):
 ###----------------------------------------------------------------------------
 
 
-class MissingLinkAnchorLinter(LinterBase):
+class HelpAnchorLinter(LinterBase):
     """
-    Lint one or more help files to find all links that are currently broken
-    because their targets are not known.
+    Lint one or more source help files trying to identify problems related to
+    anchors contained in that file, such as their not being included in the
+    index or being in the wrong file.
     """
     def lint(self, view, file_name):
-        topics = self.pkg_info.help_topics
-
-        print("Linting: %s" % file_name)
-
         for pos in view.find_by_selector("meta.anchor"):
-            self.lint_anchor(view, file_name, pos)
+            topic, text = parse_anchor_body(view.substr(pos))
+            index_info = lookup_help_topic(self.pkg_info, topic)
 
-        for pos in view.find_by_selector("meta.link"):
-            self.lint_link(view, file_name, pos)
+            sev, msg = self.validate(topic, text, index_info, file_name)
+            if sev is not None:
+                self.add(view, sev, file_name, pos.begin(), msg)
 
-    def lint_anchor(self, view, file_name, pos):
-        topic, text = parse_anchor_body(view.substr(pos))
-        index_info = lookup_help_topic(self.pkg_info, topic)
-
-        if index_info is not None:
-            if index_info["file"] != file_name:
-                self.add(view, "error", file_name, pos.begin(),
-                    "The topic '%s' is defined in another file ('%s')" ,
-                    topic, index_info["file"])
-            return
-
+    def validate(self, topic, text, index_info, file_name):
         if topic.startswith("_"):
-            if topic == "_none":
-                return
+            return ((None, None) if topic in ["_none"] else
+                    ("warning",
+                     "The topic id '{}' is reserved for internal use".format(
+                         topic)))
 
-            self.add(view, "warning", file_name, pos.begin(),
-                "The topic id '%s' is reserved for internal use",
-                topic)
-            return
+        if index_info is None:
+            return ("warning",
+                    "anchor '{}' was not found in the help index".format(
+                        topic))
 
-        self.add(view, "warning", file_name, pos.begin(),
-            "anchor '%s' was not found in the help index" % topic)
+        if index_info["file"] != file_name:
+            return ("error",
+                    "The topic '{}' is defined in another file ('{}')".format(
+                        topic,
+                        index_info["file"]))
 
-    def lint_link(self, view, file_name, pos):
-        link_body = view.substr(pos)
-        pkg, topic, text = parse_link_body(link_body)
+        return (None, None)
 
+
+class HelpLinkLinter(LinterBase):
+    """
+    Lint one or more source help files trying to identify problems related to
+    links contained in that file, such as determining when they are malformed
+    or do not point to valid targets.
+    """
+    def lint(self, view, file_name):
+        for pos in view.find_by_selector("meta.link"):
+            link_body = view.substr(pos)
+            pkg, topic, text = parse_link_body(link_body)
+
+            sev, msg = self.validate(pkg, topic, text, file_name, link_body)
+            if sev is not None:
+                self.add(view, sev, file_name, pos.begin(), msg)
+
+
+    def validate(self, pkg, topic, text, file_name, link_body):
         if topic is None:
-            self.add(view, "error", file_name, pos.begin(),
-                "Malformed link; not enough ':' characters ('%s')",
-                link_body)
-            return
+            return ("error",
+                    "Malformed link; not enough ':' characters ('{}')".format(
+                        link_body))
 
         link_pkg = self.pkg_info if pkg is None else help_index_list().get(pkg)
 
         if link_pkg is None:
-            self.add(view, "error", file_name, pos.begin(),
-                "Link references a topic in a non-existant package ('%s')",
-                pkg)
-            return
+            return ("error",
+                    "Link references a topic in a non-existant package ('{}')".format(
+                        pkg))
 
         index_info = lookup_help_topic(link_pkg, topic)
-        if index_info is not None:
-            file = index_info["file"]
-            if file in link_pkg.package_files and not sublime.find_resources(file):
-                self.add(view, "warning", file_name, pos.begin(),
-                    "Link references a non-existant package file ('%s')",
-                    file)
-            return
+        if index_info is None:
+            return ("warning",
+                    "link references unknown anchor '{}'".format(topic))
 
-        self.add(view, "warning", file_name, pos.begin(),
-            "link references unknown anchor '%s'",
-            topic)
+        if is_topic_file_valid(link_pkg, index_info) is False:
+            return ("warning",
+                    "Link references a non-existant package file ('{}')".format(
+                        index_info["file"]))
+
+        return (None, None)
+
 
 class MissingHelpSourceLinter(LinterBase):
     """
