@@ -7,7 +7,7 @@ import codecs
 
 from hyperhelp.common import log, hh_syntax
 from hyperhelp.core import help_index_list, lookup_help_topic
-from hyperhelp.core import parse_anchor_body, parse_link_body
+from hyperhelp.core import parse_help_header, parse_anchor_body, parse_link_body
 from hyperhelp.core import is_topic_file_valid
 
 
@@ -154,6 +154,7 @@ def get_linters(target):
 
     if target.target_type == "package":
         linters.append(MissingHelpSourceLinter(target.pkg_info))
+        linters.append(MismatchingTitleLinter(target.pkg_info))
 
     return linters
 
@@ -287,19 +288,19 @@ class HelpAnchorLinter(LinterBase):
 
         for topic in index_topics - file_topics:
             self.add_index("warning",
-                     "Anchor '%s' appears in the index but not in '%s'",
+                     "Topic '%s' appears in the index but not in '%s'",
                      topic, file_name)
 
     def validate(self, topic, text, index_info, file_name):
         if topic.startswith("_"):
             return ((None, None) if topic in ["_none"] else
                     ("warning",
-                     "The topic id '{}' is reserved for internal use".format(
+                     "The topic '{}' is reserved for internal use".format(
                          topic)))
 
         if index_info is None:
             return ("warning",
-                    "anchor '{}' was not found in the help index".format(
+                    "Topic '{}' was not found in the help index".format(
                         topic))
 
         if index_info["file"] != file_name:
@@ -343,7 +344,7 @@ class HelpLinkLinter(LinterBase):
         index_info = lookup_help_topic(link_pkg, topic)
         if index_info is None:
             return ("warning",
-                    "link references unknown anchor '{}'".format(topic))
+                    "Link references unknown topic '{}'".format(topic))
 
         if is_topic_file_valid(link_pkg, index_info) is False:
             return ("warning",
@@ -378,6 +379,28 @@ class MissingHelpSourceLinter(LinterBase):
                 "error",
                 "Help file '%s' is in the index but not in Packages/%s/",
                 file, self.pkg_info.doc_root)
+
+
+class MismatchingTitleLinter(LinterBase):
+    """
+    Lint the help index to ensure that the title that is declared for files in
+    the index matches the title in the source help file itself.
+    """
+    def lint(self, view, file_name):
+        first_line = view.substr(view.full_line(0))
+        header = parse_help_header(file_name, first_line)
+
+        if header is None:
+            return self.add(view, "error", file_name, 0,
+                            "File '%s' does not have a help header", file_name)
+
+        index_title = self.pkg_info.help_files[file_name]
+        file_title = header.title
+
+        if index_title != file_title:
+            self.add(view, "warning", file_name, 0,
+                     "Title in file header for '%s' does not match the index",
+                     file_name)
 
 
 ###----------------------------------------------------------------------------
