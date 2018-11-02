@@ -271,6 +271,10 @@ class HelpAnchorLinter(LinterBase):
     index or being in the wrong file.
     """
     def lint(self, view, file_name):
+        index_topics = {t["topic"] for t in self.pkg_info.help_topics.values()
+                        if t["file"] == file_name}
+
+        file_topics = {file_name}
         for pos in view.find_by_selector("meta.anchor"):
             topic, text = parse_anchor_body(view.substr(pos))
             index_info = lookup_help_topic(self.pkg_info, topic)
@@ -278,6 +282,13 @@ class HelpAnchorLinter(LinterBase):
             sev, msg = self.validate(topic, text, index_info, file_name)
             if sev is not None:
                 self.add(view, sev, file_name, pos.begin(), msg)
+            elif not topic.startswith("_"):
+                file_topics.add(topic)
+
+        for topic in index_topics - file_topics:
+            self.add_index("warning",
+                     "Anchor '%s' appears in the index but not in '%s'",
+                     topic, file_name)
 
     def validate(self, topic, text, index_info, file_name):
         if topic.startswith("_"):
