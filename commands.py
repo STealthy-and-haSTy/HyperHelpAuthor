@@ -420,7 +420,13 @@ class HyperhelpAuthorReloadHelpCommand(sublime_plugin.TextCommand):
         return self.view.match_selector(0, "text.hyperhelp.help")
 
     def reload(self, help_view, help_file):
+        viewport = help_view.viewport_position()
+        caret = help_view.sel()[0].b
+
         if reload_help_file(help_index_list(), help_view):
+            help_view.sel().clear()
+            help_view.sel().add(sublime.Region(caret))
+            help_view.set_viewport_position(viewport, False)
             log("Reloaded help file '%s'", help_file, status=True)
 
 
