@@ -14,6 +14,7 @@ from hyperhelp.view import find_help_view
 from .common import format_template, is_authoring_source
 from .common import local_help_filename, open_local_help
 from .common import open_help_index, apply_authoring_settings
+from .common import package_for_view
 
 from .linter import can_lint_view, find_lint_target, get_linters
 from .linter import get_lint_file, format_lint
@@ -497,6 +498,46 @@ class HyperhelpAuthorLintCommand(sublime_plugin.WindowCommand):
 
     def is_enabled(self):
         return can_lint_view(self.window.active_view())
+
+
+class HyperhelpAuthorContextEditHelpCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        pkg = current_help_package(self.view, self.view.window())
+        file = current_help_file(self.view, self.view.window())
+
+        self.view.window().run_command("hyperhelp_author_edit_help", {
+            "package": pkg,
+            "file": file
+            })
+
+    def is_enabled(self):
+        if self.view.match_selector(0, "text.hyperhelp.help"):
+            return self.view.is_read_only()
+
+        return False
+
+    def is_visible(self):
+        return self.is_enabled()
+
+
+class HyperhelpAuthorContextEditIndexCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        pkg = current_help_package(self.view, self.view.window())
+        if pkg is None:
+            pkg_info = package_for_view(self.view)
+            if pkg_info is not None:
+                pkg = pkg_info.package
+
+        if pkg is not None:
+            self.view.window().run_command("hyperhelp_author_edit_index", {
+                "package": pkg
+                })
+
+    def is_enabled(self):
+        return self.view.match_selector(0, "text.hyperhelp.help")
+
+    def is_visible(self):
+        return self.is_enabled()
 
 
 ###----------------------------------------------------------------------------

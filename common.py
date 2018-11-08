@@ -4,6 +4,7 @@ import os
 import textwrap
 
 from hyperhelp.common import log, hh_syntax
+from hyperhelp.core import help_index_list
 
 
 ###----------------------------------------------------------------------------
@@ -43,6 +44,26 @@ def is_authoring_source(view):
         return not view.is_read_only()
 
     return False
+
+
+def package_for_view(view):
+    """
+    Given a view object, provides you back the help index tuple for the help
+    package that contains this file. This may be None if this file is not a
+    Sublime package file, or if it doesn't correspond to a loaded help package.
+
+    This does not verify that the file is actually a part of the provided help
+    package, only that it is in the document root for said package.
+    """
+    if view.file_name() is not None:
+        spp = sublime.packages_path()
+        if view.file_name().startswith(spp):
+            file_name = view.file_name()[len(spp)+1:]
+            for pkg_name, pkg_info in help_index_list().items():
+                if file_name.startswith(pkg_info.doc_root):
+                    return pkg_info
+
+    return None
 
 
 def local_help_filename(pkg_info, help_file):

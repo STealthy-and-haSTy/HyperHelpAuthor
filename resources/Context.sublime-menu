@@ -1,0 +1,5 @@
+[
+    { "caption": "-", "id": "end" },
+    { "caption": "HyperHelpAuthor: Edit this help file", "command": "hyperhelp_author_context_edit_help" },
+    { "caption": "HyperHelpAuthor: Edit this help index", "command": "hyperhelp_author_context_edit_index" },
+]
