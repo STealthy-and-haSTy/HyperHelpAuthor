@@ -122,7 +122,7 @@ def _make_root_help(package, help_path):
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorUpdateHeader(sublime_plugin.TextCommand):
+class HyperhelpAuthorUpdateHeaderCommand(sublime_plugin.TextCommand):
     """
     If the current file is a help file that contains a header with a last
     modified date field, this will update the date field to be the current
@@ -150,7 +150,7 @@ class HyperhelpAuthorUpdateHeader(sublime_plugin.TextCommand):
         return is_authoring_source(self.view)
 
 
-class HyperhelpAuthorCreateHelp(sublime_plugin.WindowCommand):
+class HyperhelpAuthorCreateHelpCommand(sublime_plugin.WindowCommand):
     """
     Create a new help file in the package provided. If no package is given and
     one cannot be inferred from the current help view, the user will be
@@ -201,7 +201,7 @@ class HyperhelpAuthorCreateHelp(sublime_plugin.WindowCommand):
         view.run_command("insert_snippet", {"contents": template})
 
 
-class HyperhelpAuthorEditHelp(sublime_plugin.WindowCommand):
+class HyperhelpAuthorEditHelpCommand(sublime_plugin.WindowCommand):
     """
     Open an existing help file from the package provided. If no package is
     given and one cannot be inferred from the current help view, the user will
@@ -237,7 +237,7 @@ class HyperhelpAuthorEditHelp(sublime_plugin.WindowCommand):
             on_select=lambda index: pick(index))
 
 
-class HyperhelpAuthorCreateIndex(sublime_plugin.WindowCommand):
+class HyperhelpAuthorCreateIndexCommand(sublime_plugin.WindowCommand):
     """
     Create a new empty help system in the package provided, prompting for the
     package if none is given. This will create the package index and a stub
@@ -369,7 +369,7 @@ class HyperhelpAuthorCreateIndex(sublime_plugin.WindowCommand):
         return help_path
 
 
-class HyperhelpAuthorEditIndex(sublime_plugin.WindowCommand):
+class HyperhelpAuthorEditIndexCommand(sublime_plugin.WindowCommand):
     """
     Open the index for the help package provided. If no package is given and one
     cannot be inferred from the current help view, the user will be prompted to
@@ -472,7 +472,7 @@ class HyperhelpAuthorReloadIndexCommand(sublime_plugin.TextCommand):
             return filename
 
 
-class HyperhelpAuthorLint(sublime_plugin.WindowCommand):
+class HyperhelpAuthorLintCommand(sublime_plugin.WindowCommand):
     def run(self):
         target = find_lint_target(self.window.active_view())
         linters = get_linters(target)
