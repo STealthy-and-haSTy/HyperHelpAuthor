@@ -135,7 +135,7 @@ def apply_authoring_settings(view):
     up properly for editing.
     """
     # Ensure help files with no header get the appropriate syntax set
-    view.assign_syntax(hh_syntax("HyperHelp.sublime-syntax"))
+    view.assign_syntax(hh_syntax("HyperHelp-Help.sublime-syntax"))
 
     author_view_settings = hha_setting("author_view_settings")
     settings = view.settings()

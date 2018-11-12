@@ -184,7 +184,7 @@ def get_lint_file(filename):
         view.run_command("select_all")
         view.run_command("left_delete")
         view.run_command("append", {"characters": content})
-        view.assign_syntax(hh_syntax("HyperHelp.sublime-syntax"))
+        view.assign_syntax(hh_syntax("HyperHelp-Help.sublime-syntax"))
         return view
 
     return None
