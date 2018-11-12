@@ -51,7 +51,7 @@
                                 "caption": "Settings",
                                 "command": "edit_settings",
                                 "args": {
-                                    "base_file": "${packages}/hyperhelp/authoring_resources/HyperHelpAuthor.sublime-settings",
+                                    "base_file": "${packages}/HyperHelpAuthor/resources/HyperHelpAuthor.sublime-settings",
                                     "default": "{\n\t$0\n}\n"
                                 }
                             },
@@ -59,7 +59,7 @@
                                 "caption": "Key Bindings",
                                 "command": "edit_settings",
                                 "args": {
-                                    "base_file": "${packages}/hyperhelp/authoring_resources/Default ($platform).sublime-keymap",
+                                    "base_file": "${packages}/HyperHelpAuthor/resources/Default ($platform).sublime-keymap",
                                     "default": "[\n\t$0\n]\n"
                                 }
                             }
