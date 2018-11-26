@@ -13,18 +13,8 @@
         ]
     },
 
-    // These are currently disabled because one or more of them get in the way
-    // when typing. In particular trying to press space on a line after a link
-    // appears is inserting NBSP when it doesn't need to (or rather, on
-    // reflection we don't want it to), which breaks things in weird ways.
-
-    // // Insert a non-breaking space when spacebar is pressed inside links, anchors and key binds
-    // {
-    //     "keys": [" "], "command": "insert", "args": { "characters": "\u00a0" },
-    //     "context": [
-    //         { "key": "selector", "operator": "equal", "operand": "text.hyperhelp.help & (meta.link | punctuation.link.end | meta.anchor | punctuation.anchor.end | meta.keybind | punctuation.keybind.end)" }
-    //     ]
-    // },
+    // These are currently disabled pending review of how to make them work a
+    // little better in all situations.
 
     // // Insert a non-breaking space when spacebar is pressed after a vertical pipe that
     // // doesn't have an immediately adjacent closing pipe (i.e. not inside of a link).

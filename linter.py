@@ -296,6 +296,16 @@ class HelpAnchorLinter(LinterBase):
                      topic, file_name)
 
     def validate(self, seen_topics, topic, text, index_info, file_name):
+        if "\u00a0" in topic or "\t" in topic:
+            return ("error",
+                    "Topic '{}' contains nonbreaking spaces or tabs".format(
+                        topic))
+
+        if "  " in topic:
+            return ("error",
+                    "Topic '{}' contains consecutive whitespace characters".format(
+                        topic))
+
         if topic.startswith("_"):
             return ((None, None) if topic in ["_none"] else
                     ("warning",
@@ -338,6 +348,11 @@ class HelpLinkLinter(LinterBase):
 
 
     def validate(self, pkg, topic, text, file_name, link_body):
+        if "\u00a0" in topic or "\t" in topic:
+            return ("error",
+                    "Link '{}' contains nonbreaking spaces or tabs".format(
+                        topic))
+
         if topic is None:
             return ("error",
                     "Malformed link; not enough ':' characters ('{}')".format(
