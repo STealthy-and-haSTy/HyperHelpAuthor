@@ -6,10 +6,10 @@ import codecs
 import datetime
 import re
 
-from hyperhelp.common import log, help_package_prompt
-from hyperhelp.common import current_help_package, current_help_file
-from hyperhelp.core import help_index_list, load_help_index, reload_help_file
-from hyperhelp.view import find_help_view
+from hyperhelpcore.common import log, help_package_prompt
+from hyperhelpcore.common import current_help_package, current_help_file
+from hyperhelpcore.core import help_index_list, load_help_index, reload_help_file
+from hyperhelpcore.view import find_help_view
 
 from .common import format_template, is_authoring_source
 from .common import local_help_filename, open_local_help

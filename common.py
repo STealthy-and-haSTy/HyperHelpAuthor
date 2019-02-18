@@ -3,8 +3,9 @@ import sublime
 import os
 import textwrap
 
-from hyperhelp.common import log, hh_syntax
-from hyperhelp.core import help_index_list
+import hyperhelpcore
+from hyperhelpcore.common import log, hh_syntax
+from hyperhelpcore.core import help_index_list
 
 
 ###----------------------------------------------------------------------------
@@ -23,6 +24,7 @@ def plugin_loaded():
             "draw_indent_guides": True
         }
     }
+    hyperhelpcore.initialize()
 
 
 ###----------------------------------------------------------------------------
