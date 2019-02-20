@@ -2,7 +2,7 @@ HyperHelpAuthor
 ===============
 
 HyperHelpAuthor is a set of authoring tools that make it easier to generate and
-work with help for the [hyperhelp](https://github.com/OdatNurd/hyperhelp)
+work with help for the [hyperhelp](https://github.com/STealthy-and-haSTy/hyperhelpcore)
 help system.
 
 
@@ -19,7 +19,7 @@ project (hyperhelp itself). As such, everything is subject to change.
 
 ## License ##
 
-Copyright 2017 Terence Martin
+Copyright 2017-2019 Terence Martin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
