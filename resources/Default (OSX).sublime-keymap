@@ -3,13 +3,13 @@
     {
         "keys": ["f5"], "command": "hyperhelp_author_reload_help",
         "context": [
-            { "key": "selector", "operator": "equal", "operand": "text.hyperhelp.help" }
+            { "key": "hyperhelp.is_help", "operator": "equal", "operand": true }
         ]
     },
     {
         "keys": ["f5"], "command": "hyperhelp_author_reload_index",
         "context": [
-            { "key": "selector", "operator": "equal", "operand": "text.hyperhelp.index" }
+            { "key": "hyperhelp.is_help_index", "operator": "equal", "operand": true }
         ]
     },
 
