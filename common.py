@@ -71,9 +71,19 @@ def package_for_view(view):
 def local_help_filename(pkg_info, help_file):
     """
     Determine what the full file name of a help file from a given package would
-    be if it was stored locally
+    be if it was stored locally.
     """
-    return os.path.join(sublime.packages_path(), pkg_info.doc_root, help_file)
+    return os.path.normpath(os.path.join(sublime.packages_path(),
+                            pkg_info.doc_root, help_file))
+
+
+def local_help_index(pkg_info):
+    """
+    Determine what the full file name of the help index file for the given
+    package would be if it was stored locally.
+    """
+    return os.path.normpath(os.path.join(sublime.packages_path(),
+                            pkg_info.index_file[len("Packages/"):]))
 
 
 def format_template(template, *args):
@@ -116,8 +126,7 @@ def open_help_index(pkg_info, window=None):
     window = window if window is not None else sublime.active_window()
 
     # The index file is stored as a resource file spec, so strip the prefix
-    local_path = os.path.join(sublime.packages_path(),
-                              pkg_info.index_file[len("Packages/"):])
+    local_path = local_help_index(pkg_info)
 
     if not os.path.exists(local_path):
         return log(format_template(
