@@ -104,7 +104,7 @@ def can_lint_view(view):
         # Make the path relative to the packages folder, then throw the
         # filename away, which should be a document root.
         name = os.path.relpath(view.file_name(), sublime.packages_path())
-        name = os.path.split(name)[0]
+        name = os.path.split(name)[0].replace("\\", "/")
 
         for info in help_index_list().values():
             if info.doc_root == name:
@@ -125,6 +125,7 @@ def find_lint_target(view):
     # and the file name parts.
     name = os.path.relpath(view.file_name(), sublime.packages_path())
     name, target = os.path.split(name)
+    name = name.replace("\\", "/")
 
     # Use the location as the document root to find the appropriate package.
     for info in help_index_list().values():
