@@ -11,9 +11,9 @@ from hyperhelpcore.core import help_index_list
 ###----------------------------------------------------------------------------
 
 
-def plugin_loaded():
+def loaded():
     """
-    Do package setup at packge load time.
+    Do package setup at package load time.
     """
     hha_setting.obj = sublime.load_settings("HyperHelpAuthor.sublime-settings")
     hha_setting.default = {
@@ -25,6 +25,13 @@ def plugin_loaded():
         }
     }
     hyperhelpcore.initialize()
+
+
+def unloaded():
+    """
+    Do package cleanup at unload time.
+    """
+    pass
 
 
 ###----------------------------------------------------------------------------
