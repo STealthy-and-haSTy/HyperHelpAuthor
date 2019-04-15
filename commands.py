@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 import os
+import posixpath
 import codecs
 import datetime
 import re
@@ -69,7 +70,7 @@ def _global_package_list(filter_with_help=True):
     if "User" in pkg_set:
         yield "User"
 
-
+# TODO: This should use a template from a file resource instead
 def _make_help_index(package, doc_root, index_path):
     """
     Create an empty help index for the provided package at the given index
@@ -102,7 +103,7 @@ def _make_help_index(package, doc_root, index_path):
     with codecs.open(index_path, 'w', 'utf-8') as handle:
         handle.write(template)
 
-
+# TODO: This should use a template from a file resource instead
 def _make_root_help(package, help_path):
     """
     Create a stub root help file (index.txt) at the provided help path.
@@ -123,6 +124,9 @@ def _make_root_help(package, help_path):
 ###----------------------------------------------------------------------------
 
 
+# TODO: Maybe this could be partiall done in the core or something; at the
+# very least, can we get the core to be the only place where the regex for
+# this is stored, so that this package will always work?
 class HyperhelpAuthorUpdateHeaderCommand(sublime_plugin.TextCommand):
     """
     If the current file is a help file that contains a header with a last
@@ -151,6 +155,8 @@ class HyperhelpAuthorUpdateHeaderCommand(sublime_plugin.TextCommand):
         return is_authoring_source(self.view)
 
 
+# TODO: This should perhaps have a customizable snippet to fill out the help
+# file.
 class HyperhelpAuthorCreateHelpCommand(sublime_plugin.WindowCommand):
     """
     Create a new help file in the package provided. If no package is given and
@@ -305,7 +311,7 @@ class HyperhelpAuthorCreateIndexCommand(sublime_plugin.WindowCommand):
                 _make_help_index(package, doc_root, index_path)
                 _make_root_help(package, help_path)
 
-                res = "Packages/%s/%shyperhelp.json" % (package, doc_root)
+                res = posixpath.join("Packages", package, doc_root, "hyperhelp.json")
                 new_pkg_info = load_help_index(res)
                 if new_pkg_info is None:
                     raise IOError("Unable to load new help index")
@@ -316,13 +322,13 @@ class HyperhelpAuthorCreateIndexCommand(sublime_plugin.WindowCommand):
                     """
                     Initial help files created for package:
                        '%s'
-                          -> %s/hyperhelp.json
-                          -> %s/index.txt
+                          -> %s
+                          -> %s
 
                     """,
                     package,
-                    doc_root,
-                    doc_root)
+                    posixpath.join(doc_root, "hyperhelp.json"),
+                    posixpath.join(doc_root, "index.txt"))
 
                 # Prompt the user to see if they want to open the files just
                 # created or not.
@@ -353,6 +359,8 @@ class HyperhelpAuthorCreateIndexCommand(sublime_plugin.WindowCommand):
                     or root help file.
                     """, package)
 
+    # TODO: Maybe this should ensure that the document root is always in the
+    # appropriate path format for posix.
     def make_document_root(self, package, doc_root):
         help_path = os.path.join(sublime.packages_path(), package, doc_root)
         help_path = os.path.normpath(help_path)
