@@ -12,10 +12,10 @@ from hyperhelpcore.common import current_help_package, current_help_file
 from hyperhelpcore.core import help_index_list, load_help_index, reload_help_file
 from hyperhelpcore.view import find_help_view
 
-from .common import format_template, is_authoring_source
-from .common import local_help_filename, open_local_help
-from .common import open_help_index, apply_authoring_settings
-from .common import package_for_view
+from .src.common import format_template, is_authoring_source
+from .src.common import local_help_filename, open_local_help
+from .src.common import open_help_index, apply_authoring_settings
+from .src.common import package_for_view
 
 from .linter import can_lint_view, find_lint_target, get_linters
 from .linter import get_lint_file, format_lint

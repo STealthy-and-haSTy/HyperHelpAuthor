@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from .common import hha_setting, is_authoring_source, apply_authoring_settings
+from .src.common import hha_setting, is_authoring_source, apply_authoring_settings
 
 
 ###----------------------------------------------------------------------------
