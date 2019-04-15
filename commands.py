@@ -17,8 +17,8 @@ from .src.common import local_help_filename, open_local_help
 from .src.common import open_help_index, apply_authoring_settings
 from .src.common import package_for_view
 
-from .linter import can_lint_view, find_lint_target, get_linters
-from .linter import get_lint_file, format_lint
+from .src.linter import can_lint_view, find_lint_target, get_linters
+from .src.linter import get_lint_file, format_lint
 
 
 ###----------------------------------------------------------------------------
