@@ -9,5 +9,22 @@
     { "caption": "HyperHelpAuthor: Reload help index", "command": "hyperhelp_author_reload_index" },
     { "caption": "HyperHelpAuthor: Reload help file",  "command": "hyperhelp_author_reload_help"  },
 
-    { "caption": "HyperHelpAuthor: Lint help file/index", "command": "hyperhelp_author_lint" }
+    { "caption": "HyperHelpAuthor: Lint help file/index", "command": "hyperhelp_author_lint" },
+
+    {
+        "caption": "Preferences: HyperHelpAuthor Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/HyperHelpAuthor/resources/settings/HyperHelpAuthor.sublime-settings",
+            "default": "{\n\t$0\n}\n"
+        }
+    },
+    {
+        "caption": "Preferences: HyperHelpAuthor Key Bindings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/HyperHelpAuthor/resources/keymaps/Default ($platform).sublime-keymap",
+            "default": "[\n\t$0\n]\n"
+        }
+    },
 ]
