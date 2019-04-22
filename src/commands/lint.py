@@ -5,8 +5,8 @@ import os
 
 from hyperhelpcore.common import log
 
-from ..linter import can_lint_view, find_lint_target, get_linters
-from ..linter import get_lint_file, format_lint
+from ..linter_support import can_lint_view, find_lint_target, get_linters
+from ..linter_support import get_lint_file, format_lint
 
 
 ###----------------------------------------------------------------------------

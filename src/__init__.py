@@ -1,10 +1,9 @@
 from ..authoring import reload
 
-reload("src", ["common", "events", "linter"])
+reload("src", ["common", "events", "linter_base", "linter_support"])
 reload("src.commands")
+reload("src.linter")
 
-from . import common
-from . import linter
 from .events import *
 from .commands import *
 
@@ -26,7 +25,4 @@ __all__ = [
 
     # events/contexts
     "HyperhelpAuthorEventListener",
-
-    # linter
-    "linter"
 ]
