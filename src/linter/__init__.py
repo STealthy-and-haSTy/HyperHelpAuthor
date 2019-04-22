@@ -8,6 +8,7 @@ from .link import HelpLinkLinter
 from .mismatching_title import MismatchingTitleLinter
 from .missing_help_source import MissingHelpSourceLinter
 from .missing_in_toc import MissingInTOCLinter
+from .unlinked_files import UnlinkedHelpFilesLinter
 
 __all__ = [
     # Linters
@@ -15,5 +16,6 @@ __all__ = [
     "HelpLinkLinter",
     "MissingHelpSourceLinter",
     "MismatchingTitleLinter",
-    "MissingInTOCLinter"
+    "MissingInTOCLinter",
+    "UnlinkedHelpFilesLinter"
 ]

@@ -17,6 +17,7 @@ from .linter import HelpLinkLinter
 from .linter import MissingHelpSourceLinter
 from .linter import MismatchingTitleLinter
 from .linter import MissingInTOCLinter
+from .linter import UnlinkedHelpFilesLinter
 
 
 ###----------------------------------------------------------------------------
@@ -88,6 +89,7 @@ def get_linters(target):
         linters.append(MissingHelpSourceLinter(target.pkg_info))
         linters.append(MismatchingTitleLinter(target.pkg_info))
         linters.append(MissingInTOCLinter(target.pkg_info))
+        linters.append(UnlinkedHelpFilesLinter(target.pkg_info))
 
     return linters
 
