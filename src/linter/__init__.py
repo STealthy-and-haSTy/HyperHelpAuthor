@@ -7,11 +7,13 @@ from .anchor import HelpAnchorLinter
 from .link import HelpLinkLinter
 from .mismatching_title import MismatchingTitleLinter
 from .missing_help_source import MissingHelpSourceLinter
+from .missing_in_toc import MissingInTOCLinter
 
 __all__ = [
     # Linters
     "HelpAnchorLinter",
     "HelpLinkLinter",
     "MissingHelpSourceLinter",
-    "MismatchingTitleLinter"
+    "MismatchingTitleLinter",
+    "MissingInTOCLinter"
 ]
