@@ -109,6 +109,7 @@ def get_lint_file(filename):
 
     content = None
     try:
+        # TODO: This will break if we lint a packed package
         with codecs.open(filename, 'r', encoding='utf-8') as file:
             content = file.read()
     except:
@@ -125,7 +126,7 @@ def get_lint_file(filename):
     return None
 
 
-def format_lint(pkg_info, issues, window=None):
+def format_lint(target, issues, window=None):
     """
     Takes a list of LintResult issues for a package and returns back output
     suitable for passing to display_lint().
@@ -139,7 +140,13 @@ def format_lint(pkg_info, issues, window=None):
             files[issue.file] = []
         files[issue.file].append(issue)
 
-    output = ["Linting in help package: %s\n" % pkg_info.package]
+    if target.target_type == "package":
+        output = ["Linting help package: {pkg}\n".format(
+            pkg=target.pkg_info.package)]
+    else:
+        output = ["Linting {target} in help package: {pkg}\n".format(
+            target=target.files[0],
+            pkg=target.pkg_info.package)]
 
     warn = 0
     err = 0
@@ -165,7 +172,7 @@ def format_lint(pkg_info, issues, window=None):
         "" if err == 1 else "s"))
 
     if window:
-        display_lint(window, pkg_info, output)
+        display_lint(window, target.pkg_info, output)
 
     return output
 

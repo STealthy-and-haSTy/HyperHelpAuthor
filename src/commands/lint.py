@@ -33,7 +33,7 @@ class HyperhelpAuthorLintCommand(sublime_plugin.WindowCommand):
         for linter in linters:
             issues += linter.results()
 
-        format_lint(target.pkg_info, issues, self.window)
+        format_lint(target, issues, self.window)
 
     def is_enabled(self):
         return can_lint_view(self.window.active_view())
