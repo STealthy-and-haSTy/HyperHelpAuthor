@@ -32,6 +32,11 @@ class HyperhelpAuthorEventListener(sublime_plugin.EventListener):
         if hha_setting("update_header_on_save") and is_authoring_source(view):
             view.run_command("hyperhelp_author_update_header", {"quiet": True})
 
+    def on_post_save(self, view):
+        if hha_setting("reload_index_on_save") and view.file_name() is not None:
+            if view.match_selector(0, "text.hyperhelp.index"):
+                view.run_command("hyperhelp_author_reload_index")
+
     def on_load(self, view):
         """
         If the view is a help file that is marked as being opened by the
