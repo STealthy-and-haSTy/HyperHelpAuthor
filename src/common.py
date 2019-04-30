@@ -18,6 +18,7 @@ def loaded():
     hha_setting.obj = sublime.load_settings("HyperHelpAuthor.sublime-settings")
     hha_setting.default = {
         "update_header_on_save": True,
+        "reload_index_on_save": True,
         "author_view_settings": {
             "rulers": [80],
             "match_selection": True,
