@@ -11,6 +11,7 @@ from hyperhelpcore.core import parse_help_header, parse_anchor_body, parse_link_
 from hyperhelpcore.core import is_topic_file_valid
 
 from .linter_base import LintTarget
+from .common import hha_setting
 
 from .linter import HelpAnchorLinter
 from .linter import HelpLinkLinter
@@ -18,6 +19,37 @@ from .linter import MissingHelpSourceLinter
 from .linter import MismatchingTitleLinter
 from .linter import MissingInTOCLinter
 from .linter import UnlinkedHelpFilesLinter
+
+
+###----------------------------------------------------------------------------
+
+
+def _find_or_create_output_view(window, target):
+    """
+    Find or create a view in the current window for putting the lint output in.
+    This is used when lint_output_to_view is set to True to create the view for
+    the lint results to be displayed in.
+    """
+    caption = {
+        "package": "HyperHelpAuthor Lint: {pkg}",
+        "single":  "HyperHelpAuthor Lint: {target} ({pkg})"
+    }.get(target.target_type, "???").format(
+        target=target.files[0],
+        pkg=target.pkg_info.package)
+
+    for view in window.views():
+        if view.name().startswith("HyperHelpAuthor Lint"):
+            view.set_name(caption)
+            view.set_read_only(False)
+            view.run_command("select_all")
+            view.run_command("left_delete")
+            return view
+
+    view = window.new_file()
+    view.set_name(caption)
+    view.set_scratch(True)
+
+    return view
 
 
 ###----------------------------------------------------------------------------
@@ -172,19 +204,24 @@ def format_lint(target, issues, window=None):
         "" if err == 1 else "s"))
 
     if window:
-        display_lint(window, target.pkg_info, output)
+        display_lint(window, target, output)
 
     return output
 
 
-def display_lint(window, pkg_info, output):
+def display_lint(window, target, output):
     """
     Display the lint output provided into the given window. The output is
     assumed to have been generated from the provided package, which is used to
     know where the help files are located.
     """
-    view = window.create_output_panel("HyperHelpAuthor Lint", False)
-    basedir = os.path.join(sublime.packages_path(), pkg_info.doc_root)
+    if hha_setting("lint_output_to_view"):
+        prev_view = window.active_view()
+        view = _find_or_create_output_view(window, target)
+    else:
+        view = window.create_output_panel("HyperHelpAuthor Lint", False)
+
+    basedir = os.path.join(sublime.packages_path(), target.pkg_info.doc_root)
     # print("encoding:", view.encoding())
 
     if not isinstance(output, str):
@@ -201,7 +238,13 @@ def display_lint(window, pkg_info, output):
     view.run_command("append", {"characters": output})
     view.set_read_only(True)
 
-    window.run_command("show_panel", {"panel": "output.HyperHelpAuthor Lint"})
+    if hha_setting("lint_output_to_view"):
+        # In views, find results fail until the focus is lost and regained.
+        # This is a bug in Sublime, so work around it by changing the focus.
+        window.focus_view(prev_view)
+        window.focus_view(view)
+    else:
+        window.run_command("show_panel", {"panel": "output.HyperHelpAuthor Lint"})
 
 
 ###----------------------------------------------------------------------------
