@@ -8,6 +8,12 @@
     // will be reloaded.
     "reload_index_on_save": true,
 
+    // When set to True, lint output is sent to a buffer in the current window.
+    // The default is to display lint output in a panel instead. When lint
+    // output is sent to a view, the linter will clear and re-use the existing
+    // view if possible.
+    "lint_output_to_view": false,
+
     // The settings here are applied to help views after they are opened for
     // editing and have the usual syntax settings applied to them.
     //

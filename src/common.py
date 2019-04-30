@@ -19,6 +19,7 @@ def loaded():
     hha_setting.default = {
         "update_header_on_save": True,
         "reload_index_on_save": True,
+        "lint_output_to_view": False,
         "author_view_settings": {
             "rulers": [80],
             "match_selection": True,
