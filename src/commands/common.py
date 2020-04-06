@@ -1,9 +1,11 @@
 import sublime
 import sublime_plugin
 
+import datetime
 import codecs
 import re
 
+from hyperhelpcore.core import help_index_list
 from hyperhelpcore.common import log
 from ..common import format_template
 
