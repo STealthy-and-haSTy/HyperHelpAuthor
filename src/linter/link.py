@@ -28,15 +28,15 @@ class HelpLinkLinter(LinterBase):
 
 
     def validate(self, pkg, topic, text, file_name, link_body):
-        if "\u00a0" in topic or "\t" in topic:
-            return ("error",
-                    "Link '{}' contains nonbreaking spaces or tabs".format(
-                        topic))
-
         if topic is None:
             return ("error",
                     "Malformed link; not enough ':' characters ('{}')".format(
                         link_body))
+
+        if "\u00a0" in topic or "\t" in topic:
+            return ("error",
+                    "Link '{}' contains nonbreaking spaces or tabs".format(
+                        topic))
 
         link_pkg = self.pkg_info if pkg is None else help_index_list().get(pkg)
 
