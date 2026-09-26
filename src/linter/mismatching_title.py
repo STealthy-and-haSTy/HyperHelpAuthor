@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from hyperhelpcore.core import parse_help_header
+from HyperHelp.helpcore.core import parse_help_header
 
 from ..linter_base import LinterBase
 

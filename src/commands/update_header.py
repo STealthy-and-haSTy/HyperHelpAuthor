@@ -5,7 +5,7 @@ import datetime
 
 from .common import header_date_re
 
-from hyperhelpcore.common import log
+from HyperHelp.helpcore.common import log
 
 from ..common import is_authoring_source
 

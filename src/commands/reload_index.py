@@ -3,8 +3,8 @@ import sublime_plugin
 
 import os
 
-from hyperhelpcore.common import log
-from hyperhelpcore.core import help_index_list
+from HyperHelp.helpcore.common import log
+from HyperHelp.helpcore.core import help_index_list
 
 
 ###----------------------------------------------------------------------------

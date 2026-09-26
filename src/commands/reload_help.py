@@ -3,9 +3,9 @@ import sublime_plugin
 
 import os
 
-from hyperhelpcore.common import log, current_help_package, current_help_file
-from hyperhelpcore.core import help_index_list, reload_help_file
-from hyperhelpcore.view import find_help_view
+from HyperHelp.helpcore.common import log, current_help_package, current_help_file
+from HyperHelp.helpcore.core import help_index_list, reload_help_file
+from HyperHelp.helpcore.view import find_help_view
 
 
 ###----------------------------------------------------------------------------

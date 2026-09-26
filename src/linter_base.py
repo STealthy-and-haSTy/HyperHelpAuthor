@@ -5,10 +5,10 @@ import os
 from collections import OrderedDict, namedtuple
 import codecs
 
-from hyperhelpcore.common import log, hh_syntax
-from hyperhelpcore.core import help_index_list, lookup_help_topic
-from hyperhelpcore.core import parse_help_header, parse_anchor_body, parse_link_body
-from hyperhelpcore.core import is_topic_file_valid
+from HyperHelp.helpcore.common import log, hh_syntax
+from HyperHelp.helpcore.core import help_index_list, lookup_help_topic
+from HyperHelp.helpcore.core import parse_help_header, parse_anchor_body, parse_link_body
+from HyperHelp.helpcore.core import is_topic_file_valid
 
 
 

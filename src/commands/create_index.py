@@ -7,8 +7,8 @@ import posixpath
 from .common import error_dialog, global_package_list
 from .common import make_help_index, make_root_help
 
-from hyperhelpcore.common import log
-from hyperhelpcore.core import help_index_list, load_help_index
+from HyperHelp.helpcore.common import log
+from HyperHelp.helpcore.core import help_index_list, load_help_index
 
 from ..common import format_template
 

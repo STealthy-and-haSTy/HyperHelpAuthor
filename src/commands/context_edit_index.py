@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from hyperhelpcore.common import current_help_package
+from HyperHelp.helpcore.common import current_help_package
 
 from ..common import package_for_view
 

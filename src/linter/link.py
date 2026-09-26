@@ -1,9 +1,9 @@
 import sublime
 import sublime_plugin
 
-from hyperhelpcore.core import help_index_list, lookup_help_topic
-from hyperhelpcore.core import parse_link_body
-from hyperhelpcore.core import is_topic_file_valid
+from HyperHelp.helpcore.core import help_index_list, lookup_help_topic
+from HyperHelp.helpcore.core import parse_link_body
+from HyperHelp.helpcore.core import is_topic_file_valid
 
 from ..linter_base import LinterBase
 

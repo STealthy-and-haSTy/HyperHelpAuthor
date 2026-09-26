@@ -1,8 +1,8 @@
 import sublime
 import sublime_plugin
 
-from hyperhelpcore.common import log, help_package_prompt, current_help_package
-from hyperhelpcore.core import help_index_list
+from HyperHelp.helpcore.common import log, help_package_prompt, current_help_package
+from HyperHelp.helpcore.core import help_index_list
 
 from ..common import open_help_index
 
