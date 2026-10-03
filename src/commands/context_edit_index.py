@@ -3,13 +3,13 @@ import sublime_plugin
 
 from HyperHelp.helpcore.common import current_help_package
 
-from ..common import package_for_view
+from ..common import AuthorTextCommand, package_for_view
 
 
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorContextEditIndexCommand(sublime_plugin.TextCommand):
+class HyperhelpAuthorContextEditIndexCommand(AuthorTextCommand):
     def run(self, edit):
         pkg = current_help_package(self.view, self.view.window())
         if pkg is None:
@@ -23,6 +23,9 @@ class HyperhelpAuthorContextEditIndexCommand(sublime_plugin.TextCommand):
                 })
 
     def is_enabled(self):
+        if not super().is_enabled():
+            return False
+
         return self.view.match_selector(0, "text.hyperhelp.help")
 
     def is_visible(self):

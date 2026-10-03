@@ -10,13 +10,13 @@ from .common import make_help_index, make_root_help
 from HyperHelp.helpcore.common import log
 from HyperHelp.helpcore.core import help_index_list, load_help_index
 
-from ..common import format_template
+from ..common import AuthorWindowCommand, format_template
 
 
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorCreateIndexCommand(sublime_plugin.WindowCommand):
+class HyperhelpAuthorCreateIndexCommand(AuthorWindowCommand):
     """
     Create a new empty help system in the package provided, prompting for the
     package if none is given. This will create the package index and a stub

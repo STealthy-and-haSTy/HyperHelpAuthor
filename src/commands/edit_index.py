@@ -4,13 +4,13 @@ import sublime_plugin
 from HyperHelp.helpcore.common import log, help_package_prompt, current_help_package
 from HyperHelp.helpcore.core import help_index_list
 
-from ..common import open_help_index
+from ..common import AuthorWindowCommand, open_help_index
 
 
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorEditIndexCommand(sublime_plugin.WindowCommand):
+class HyperhelpAuthorEditIndexCommand(AuthorWindowCommand):
     """
     Open the index for the help package provided. If no package is given and one
     cannot be inferred from the current help view, the user will be prompted to

@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 from .common import hha_setting, is_authoring_source, apply_authoring_settings
+from .common import is_hyperhelp_enabled
 
 
 ###----------------------------------------------------------------------------
@@ -27,12 +28,18 @@ class HyperhelpAuthorEventListener(sublime_plugin.EventListener):
         If the file about to be saved is a help file, try to update the date
         in the header.
         """
+        if not is_hyperhelp_enabled():
+            return
+
         _apply_author_settings(view)
 
         if hha_setting("update_header_on_save") and is_authoring_source(view):
             view.run_command("hyperhelp_author_update_header", {"quiet": True})
 
     def on_post_save(self, view):
+        if not is_hyperhelp_enabled():
+            return
+
         if hha_setting("reload_index_on_save") and view.file_name() is not None:
             if view.match_selector(0, "text.hyperhelp.index"):
                 view.run_command("hyperhelp_author_reload_index")
@@ -43,6 +50,9 @@ class HyperhelpAuthorEventListener(sublime_plugin.EventListener):
         authoring tool, apply the appropriate authoring settings to it to make
         editing easier.
         """
+        if not is_hyperhelp_enabled():
+            return
+
         _apply_author_settings(view)
 
 

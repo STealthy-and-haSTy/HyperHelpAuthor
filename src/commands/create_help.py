@@ -7,6 +7,7 @@ import datetime
 from HyperHelp.helpcore.common import log, help_package_prompt, current_help_package
 from HyperHelp.helpcore.core import help_index_list
 
+from ..common import AuthorWindowCommand
 from ..common import format_template
 from ..common import local_help_filename
 from ..common import apply_authoring_settings
@@ -17,7 +18,7 @@ from ..common import apply_authoring_settings
 
 # TODO: This should perhaps have a customizable snippet to fill out the help
 # file.
-class HyperhelpAuthorCreateHelpCommand(sublime_plugin.WindowCommand):
+class HyperhelpAuthorCreateHelpCommand(AuthorWindowCommand):
     """
     Create a new help file in the package provided. If no package is given and
     one cannot be inferred from the current help view, the user will be

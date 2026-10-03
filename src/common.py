@@ -1,4 +1,5 @@
 import sublime
+import sublime_plugin
 
 import os
 import textwrap
@@ -10,10 +11,53 @@ from HyperHelp.helpcore.core import help_index_list
 ###----------------------------------------------------------------------------
 
 
+# Whether or not HyperHelp was installed and available at the time that the
+# package was loaded.
+#
+# The value here is used by the command sub classes below to know whether or
+# not our core commands should be enabled or not.
+_hyperhelp_enabled = False
+
+
+###----------------------------------------------------------------------------
+
+
+def _check_hh_enabled():
+    """
+    A simple function which determines if HyperHelp is currently an available
+    package in the system. This is done by checking to see if its Help index is
+    available or not.
+
+    The return value is True if HyperHelp is installed and available, and False
+    otherwise.
+
+    Note that if HyperHelp is installed but in ignored_packages, this will
+    return False even though imports of functionality from within it will still
+    function as expected.
+    """
+    return bool([res for res in sublime.find_resources('hyperhelp.json')
+                 if "/HyperHelp/" in res])
+
+
+###----------------------------------------------------------------------------
+
+
 def loaded():
     """
     Do package setup at package load time.
     """
+    global _hyperhelp_enabled
+    _hyperhelp_enabled = _check_hh_enabled()
+    if not _hyperhelp_enabled:
+        sublime.message_dialog(textwrap.dedent("""
+            HyperHelpAuthor requires the HyperHelp package to be enabled in
+            order operate.
+
+            HyperHelp is installed, but currently disabled. Re-enable HyperHelp
+            and restart Sublime to enable HyperHelpAuthor commands and
+            functionality.
+        """))
+
     hha_setting.obj = sublime.load_settings("HyperHelpAuthor.sublime-settings")
     hha_setting.default = {
         "update_header_on_save": True,
@@ -32,6 +76,59 @@ def unloaded():
     Do package cleanup at unload time.
     """
     pass
+
+
+###----------------------------------------------------------------------------
+
+
+def is_hyperhelp_enabled():
+    """
+    Returns True or False to indicate if HyperHelp was active and available at
+    the point at which the plugin loaded.
+    """
+    return _hyperhelp_enabled
+
+
+###----------------------------------------------------------------------------
+
+
+class AuthorTextCommand(sublime_plugin.TextCommand):
+    """
+    Custom base class for an authoring text commands; such commands hide and
+    disable themselves if HyperHelp was installed and not disabled at the time
+    that the package loaded.
+    """
+    def is_visible(self, *args, **kwargs):
+        return _hyperhelp_enabled
+
+    def is_enabled(self, *args, **kwargs):
+        return _hyperhelp_enabled
+
+
+class AuthorWindowCommand(sublime_plugin.WindowCommand):
+    """
+    Custom base class for an authoring window commands; such commands hide and
+    disable themselves if HyperHelp was installed and not disabled at the time
+    that the package loaded.
+    """
+    def is_visible(self, *args, **kwargs):
+        return _hyperhelp_enabled
+
+    def is_enabled(self, *args, **kwargs):
+        return _hyperhelp_enabled
+
+
+class AuthorApplicationCommand(sublime_plugin.ApplicationCommand):
+    """
+    Custom base class for an authoring application commands; such commands hide
+    and disable themselves if HyperHelp was installed and not disabled at the
+    time that the package loaded.
+    """
+    def is_visible(self, *args, **kwargs):
+        return _hyperhelp_enabled
+
+    def is_enabled(self, *args, **kwargs):
+        return _hyperhelp_enabled
 
 
 ###----------------------------------------------------------------------------

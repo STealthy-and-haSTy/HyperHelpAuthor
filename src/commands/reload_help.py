@@ -7,11 +7,13 @@ from HyperHelp.helpcore.common import log, current_help_package, current_help_fi
 from HyperHelp.helpcore.core import help_index_list, reload_help_file
 from HyperHelp.helpcore.view import find_help_view
 
+from ..common import AuthorTextCommand
+
 
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorReloadHelpCommand(sublime_plugin.TextCommand):
+class HyperhelpAuthorReloadHelpCommand(AuthorTextCommand):
     """
     If the current view is a hyperhelp help view, this will reload the file
     currently being displayed in the view.
@@ -39,6 +41,9 @@ class HyperhelpAuthorReloadHelpCommand(sublime_plugin.TextCommand):
             status=True)
 
     def is_enabled(self):
+        if not super().is_enabled():
+            return False
+
         return self.view.match_selector(0, "text.hyperhelp.help")
 
     def reload(self, help_view, help_file):

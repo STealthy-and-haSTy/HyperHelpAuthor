@@ -6,11 +6,13 @@ import os
 from HyperHelp.helpcore.common import log
 from HyperHelp.helpcore.core import help_index_list
 
+from ..common import AuthorTextCommand
+
 
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorReloadIndexCommand(sublime_plugin.TextCommand):
+class HyperhelpAuthorReloadIndexCommand(AuthorTextCommand):
     """
     If the current view is a hyperhelp index view, this will attempt to reload
     the help index so that the current changes will immediately take effect.
@@ -39,6 +41,9 @@ class HyperhelpAuthorReloadIndexCommand(sublime_plugin.TextCommand):
         help_index_list(reload=True, package=package)
 
     def is_enabled(self):
+        if not super().is_enabled():
+            return False
+
         return (self.view.match_selector(0, "text.hyperhelp.index") and
                 self.view.file_name() is not None)
 

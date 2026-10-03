@@ -7,7 +7,7 @@ from .common import header_date_re
 
 from HyperHelp.helpcore.common import log
 
-from ..common import is_authoring_source
+from ..common import AuthorTextCommand, is_authoring_source
 
 
 ###----------------------------------------------------------------------------
@@ -16,7 +16,7 @@ from ..common import is_authoring_source
 # TODO: Maybe this could be partiall done in the core or something; at the
 # very least, can we get the core to be the only place where the regex for
 # this is stored, so that this package will always work?
-class HyperhelpAuthorUpdateHeaderCommand(sublime_plugin.TextCommand):
+class HyperhelpAuthorUpdateHeaderCommand(AuthorTextCommand):
     """
     If the current file is a help file that contains a header with a last
     modified date field, this will update the date field to be the current
@@ -41,6 +41,9 @@ class HyperhelpAuthorUpdateHeaderCommand(sublime_plugin.TextCommand):
 
 
     def is_enabled(self, quiet=False):
+        if not super().is_enabled():
+            return False
+
         return is_authoring_source(self.view)
 
 

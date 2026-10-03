@@ -5,6 +5,8 @@ import os
 
 from HyperHelp.helpcore.common import log
 
+from ..common import AuthorWindowCommand
+
 from ..linter_support import can_lint_view, find_lint_target, get_linters
 from ..linter_support import get_lint_file, format_lint
 
@@ -12,7 +14,7 @@ from ..linter_support import get_lint_file, format_lint
 ###----------------------------------------------------------------------------
 
 
-class HyperhelpAuthorLintCommand(sublime_plugin.WindowCommand):
+class HyperhelpAuthorLintCommand(AuthorWindowCommand):
     def run(self):
         # The command can trigger from a build system, so don't execute if the
         # build is triggered from the help view; is_enabled() is not invoked
@@ -42,6 +44,9 @@ class HyperhelpAuthorLintCommand(sublime_plugin.WindowCommand):
         format_lint(target, issues, self.window)
 
     def is_enabled(self):
+        if not super().is_enabled():
+            return False
+
         return can_lint_view(self.window.active_view())
 
 
