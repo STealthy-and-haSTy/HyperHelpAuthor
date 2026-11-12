@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Dict, Optional
+
 import sublime
 import sublime_plugin  # noqa: F401
 
@@ -21,7 +25,7 @@ class HyperhelpAuthorReloadIndexCommand(AuthorTextCommand):
     the Packages folder as well as for any file that is a symlink to a file
     in the Packages folder.
     """
-    def run(self, edit):
+    def run(self, edit: sublime.Edit) -> None:
         filename = self.filename()
         if filename is None:
             return log("Cannot reload help index; not in package", status=True)
@@ -32,29 +36,34 @@ class HyperhelpAuthorReloadIndexCommand(AuthorTextCommand):
 
         # Flip the help index structure so we can look up the package based on
         # the index file instead of the other way around.
-        indexes = {value.index_file: key for key, value in help_index_list().items()}
+        indexes: Dict[str, str] = {
+            value.index_file: key for key, value in help_index_list().items()}
+        package = indexes.get(filename)
 
         # If this index is known, reload it's package; otherwise rescan all
         # packages in order to bring this one in.
-        package = None if filename not in indexes else indexes[filename]
-
         help_index_list(reload=True, package=package)
 
-    def is_enabled(self):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         if not super().is_enabled():
             return False
 
         return (self.view.match_selector(0, "text.hyperhelp.index") and
                 self.view.file_name() is not None)
 
-    def filename(self):
+    def filename(self) -> Optional[str]:
         filename = self.view.file_name()
+        if filename is None:
+            return None
+
         if filename.startswith(sublime.packages_path()):
             return filename
 
         filename = os.path.realpath(filename)
         if filename.startswith(sublime.packages_path()):
             return filename
+
+        return None
 
 
 ###----------------------------------------------------------------------------

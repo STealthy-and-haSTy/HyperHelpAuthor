@@ -1,9 +1,14 @@
+from __future__ import annotations
+
+from typing import Optional, Tuple
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
 from HyperHelp.helpcore.core import help_index_list, lookup_help_topic
 from HyperHelp.helpcore.core import parse_link_body
 from HyperHelp.helpcore.core import is_topic_file_valid
+from HyperHelp.helpcore.data import HelpData
 
 from ..linter_base import LinterBase
 
@@ -17,17 +22,19 @@ class HelpLinkLinter(LinterBase):
     links contained in that file, such as determining when they are malformed
     or do not point to valid targets.
     """
-    def lint(self, view, file_name):
+    def lint(self, view: sublime.View, file_name: str) -> None:
         for pos in view.find_by_selector("meta.link"):
             link_body = view.substr(pos)
             pkg, topic, text = parse_link_body(link_body)
 
             sev, msg = self.validate(pkg, topic, text, file_name, link_body)
-            if sev is not None:
+            if sev is not None and msg is not None:
                 self.add(view, sev, file_name, pos.begin(), msg)
 
 
-    def validate(self, pkg, topic, text, file_name, link_body):
+    def validate(self, pkg: Optional[str], topic: Optional[str],
+                 text: Optional[str], file_name: str,
+                 link_body: str) -> Tuple[Optional[str], Optional[str]]:
         if topic is None:
             return ("error",
                     "Malformed link; not enough ':' characters ('{}')".format(
@@ -38,7 +45,8 @@ class HelpLinkLinter(LinterBase):
                     "Link '{}' contains nonbreaking spaces or tabs".format(
                         topic))
 
-        link_pkg = self.pkg_info if pkg is None else help_index_list().get(pkg)
+        link_pkg: Optional[HelpData] = (
+            self.pkg_info if pkg is None else help_index_list().get(pkg))
 
         if link_pkg is None:
             return ("error",

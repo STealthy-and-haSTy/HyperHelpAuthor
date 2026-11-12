@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional
+
 import sublime
 import sublime_plugin  # noqa: F401
 
@@ -22,11 +26,12 @@ class HyperhelpAuthorCreateIndexCommand(AuthorWindowCommand):
     package if none is given. This will create the package index and a stub
     help file and reload the help index.
     """
-    def run(self, package=None, doc_root=None):
+    def run(self, package: Optional[str] = None,
+            doc_root: Optional[str] = None) -> None:
         if package is None:
             items = list(global_package_list())
 
-            def pick(i):
+            def pick(i: int) -> None:
                 if i >= 0:
                     self.run(items[i], doc_root)
 
@@ -51,7 +56,7 @@ class HyperhelpAuthorCreateIndexCommand(AuthorWindowCommand):
                                      lambda r: self.create_index(package, r),
                                      None, None)
 
-    def create_index(self, package, doc_root):
+    def create_index(self, package: str, doc_root: str) -> None:
         root_path = self.make_document_root(package, doc_root)
         if root_path is not None:
             index_path = os.path.join(root_path, "hyperhelp.json")
@@ -133,7 +138,8 @@ class HyperhelpAuthorCreateIndexCommand(AuthorWindowCommand):
 
     # TODO: Maybe this should ensure that the document root is always in the
     # appropriate path format for posix.
-    def make_document_root(self, package, doc_root):
+    def make_document_root(self, package: str,
+                           doc_root: str) -> Optional[str]:
         help_path = os.path.join(sublime.packages_path(), package, doc_root)
         help_path = os.path.normpath(help_path)
 

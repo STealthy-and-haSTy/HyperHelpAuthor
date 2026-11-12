@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import List
+
 import sublime
 import sublime_plugin  # noqa: F401
 
@@ -6,6 +10,7 @@ import os
 from HyperHelp.helpcore.common import log
 
 from ..common import AuthorWindowCommand
+from ..linter_base import LintResult, LinterBase
 
 from ..linter_support import can_lint_view, find_lint_target, get_linters
 from ..linter_support import get_lint_file, format_lint
@@ -15,7 +20,7 @@ from ..linter_support import get_lint_file, format_lint
 
 
 class HyperhelpAuthorLintCommand(AuthorWindowCommand):
-    def run(self):
+    def run(self) -> None:
         # The command can trigger from a build system, so don't execute if the
         # build is triggered from the help view; is_enabled() is not invoked
         # for build targets.
@@ -23,7 +28,7 @@ class HyperhelpAuthorLintCommand(AuthorWindowCommand):
         if target is None:
             return
 
-        linters = get_linters(target)
+        linters: List[LinterBase] = get_linters(target)
 
         spp = sublime.packages_path()
         doc_root = target.pkg_info.doc_root
@@ -37,13 +42,13 @@ class HyperhelpAuthorLintCommand(AuthorWindowCommand):
             else:
                 log("Unable to lint '%s' in '%s'", file, target.pkg_info.package)
 
-        issues = list()
+        issues: List[LintResult] = list()
         for linter in linters:
             issues += linter.results()
 
         format_lint(target, issues, self.window)
 
-    def is_enabled(self):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         if not super().is_enabled():
             return False
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
@@ -14,7 +16,7 @@ class MismatchingTitleLinter(LinterBase):
     Lint the help index to ensure that the title that is declared for files in
     the index matches the title in the source help file itself.
     """
-    def lint(self, view, file_name):
+    def lint(self, view: sublime.View, file_name: str) -> None:
         first_line = view.substr(view.full_line(0))
         header = parse_help_header(file_name, first_line)
 

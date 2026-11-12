@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import sublime
 import sublime_plugin  # noqa: F401
+
+from HyperHelp.helpcore.data import HelpData
 
 from ..linter_base import LinterBase
 
@@ -12,7 +16,7 @@ class MissingHelpSourceLinter(LinterBase):
     Lint the help index to determine if the list of help files listed in the
     index matches the list of help files that exist for the package.
     """
-    def __init__(self, pkg_info):
+    def __init__(self, pkg_info: HelpData) -> None:
         super().__init__(pkg_info)
 
         root = "Packages/%s/" % (self.pkg_info.doc_root)

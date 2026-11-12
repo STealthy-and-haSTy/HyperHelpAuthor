@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, cast
+
 import sublime
 import sublime_plugin
 
@@ -6,6 +10,7 @@ import textwrap
 
 from HyperHelp.helpcore.common import log, hh_syntax
 from HyperHelp.helpcore.core import help_index_list
+from HyperHelp.helpcore.data import HelpData
 
 
 ###----------------------------------------------------------------------------
@@ -16,13 +21,25 @@ from HyperHelp.helpcore.core import help_index_list
 #
 # The value here is used by the command sub classes below to know whether or
 # not our core commands should be enabled or not.
-_hyperhelp_enabled = False
+_hyperhelp_enabled: bool = False
+
+_hha_settings: Optional[sublime.Settings] = None
+_hha_setting_defaults: Dict[str, Any] = {
+    "update_header_on_save": True,
+    "reload_index_on_save": True,
+    "lint_output_to_view": False,
+    "author_view_settings": {
+        "rulers": [80],
+        "match_selection": True,
+        "draw_indent_guides": True
+    }
+}
 
 
 ###----------------------------------------------------------------------------
 
 
-def _check_hh_enabled():
+def _check_hh_enabled() -> bool:
     """
     A simple function which determines if HyperHelp is currently an available
     package in the system. This is done by checking to see if its Help index is
@@ -42,11 +59,12 @@ def _check_hh_enabled():
 ###----------------------------------------------------------------------------
 
 
-def loaded():
+def loaded() -> None:
     """
     Do package setup at package load time.
     """
-    global _hyperhelp_enabled
+    global _hyperhelp_enabled, _hha_settings
+
     _hyperhelp_enabled = _check_hh_enabled()
     if not _hyperhelp_enabled:
         sublime.message_dialog(textwrap.dedent("""
@@ -58,20 +76,11 @@ def loaded():
             functionality.
         """))
 
-    hha_setting.obj = sublime.load_settings("HyperHelpAuthor.sublime-settings")
-    hha_setting.default = {
-        "update_header_on_save": True,
-        "reload_index_on_save": True,
-        "lint_output_to_view": False,
-        "author_view_settings": {
-            "rulers": [80],
-            "match_selection": True,
-            "draw_indent_guides": True
-        }
-    }
+    _hha_settings = sublime.load_settings(
+        "HyperHelpAuthor.sublime-settings")
 
 
-def unloaded():
+def unloaded() -> None:
     """
     Do package cleanup at unload time.
     """
@@ -81,7 +90,7 @@ def unloaded():
 ###----------------------------------------------------------------------------
 
 
-def is_hyperhelp_enabled():
+def is_hyperhelp_enabled() -> bool:
     """
     Returns True or False to indicate if HyperHelp was active and available at
     the point at which the plugin loaded.
@@ -98,10 +107,10 @@ class AuthorTextCommand(sublime_plugin.TextCommand):
     disable themselves if HyperHelp was installed and not disabled at the time
     that the package loaded.
     """
-    def is_visible(self, *args, **kwargs):
+    def is_visible(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return _hyperhelp_enabled
 
-    def is_enabled(self, *args, **kwargs):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return _hyperhelp_enabled
 
 
@@ -111,10 +120,10 @@ class AuthorWindowCommand(sublime_plugin.WindowCommand):
     disable themselves if HyperHelp was installed and not disabled at the time
     that the package loaded.
     """
-    def is_visible(self, *args, **kwargs):
+    def is_visible(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return _hyperhelp_enabled
 
-    def is_enabled(self, *args, **kwargs):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return _hyperhelp_enabled
 
 
@@ -124,25 +133,30 @@ class AuthorApplicationCommand(sublime_plugin.ApplicationCommand):
     and disable themselves if HyperHelp was installed and not disabled at the
     time that the package loaded.
     """
-    def is_visible(self, *args, **kwargs):
+    def is_visible(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return _hyperhelp_enabled
 
-    def is_enabled(self, *args, **kwargs):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return _hyperhelp_enabled
 
 
 ###----------------------------------------------------------------------------
 
 
-def hha_setting(key):
+def hha_setting(key: str) -> Any:
     """
     Get a HyperHelpAuthor setting from a cached settings object.
     """
-    default = hha_setting.default.get(key, None)
-    return hha_setting.obj.get(key, default)
+    global _hha_settings
 
+    if _hha_settings is None:
+        _hha_settings = sublime.load_settings(
+            "HyperHelpAuthor.sublime-settings")
 
-def is_authoring_source(view):
+    default = _hha_setting_defaults.get(key, None)
+    return _hha_settings.get(key, default)
+
+def is_authoring_source(view: sublime.View) -> bool:
     """
     Given a view object, tells you if that view represents a help source file.
     """
@@ -152,7 +166,7 @@ def is_authoring_source(view):
     return False
 
 
-def package_for_view(view):
+def package_for_view(view: sublime.View) -> Optional[HelpData]:
     """
     Given a view object, provides you back the help index tuple for the help
     package that contains this file. This may be None if this file is not a
@@ -161,18 +175,19 @@ def package_for_view(view):
     This does not verify that the file is actually a part of the provided help
     package, only that it is in the document root for said package.
     """
-    if view.file_name() is not None:
+    file_name = view.file_name()
+    if file_name is not None:
         spp = sublime.packages_path()
-        if view.file_name().startswith(spp):
-            file_name = view.file_name()[len(spp)+1:]
+        if file_name.startswith(spp):
+            relative_name = file_name[len(spp)+1:]
             for pkg_info in help_index_list().values():
-                if file_name.startswith(pkg_info.doc_root):
+                if relative_name.startswith(pkg_info.doc_root):
                     return pkg_info
 
     return None
 
 
-def local_help_filename(pkg_info, help_file):
+def local_help_filename(pkg_info: HelpData, help_file: str) -> str:
     """
     Determine what the full file name of a help file from a given package would
     be if it was stored locally.
@@ -181,7 +196,7 @@ def local_help_filename(pkg_info, help_file):
                             pkg_info.doc_root, help_file))
 
 
-def local_help_index(pkg_info):
+def local_help_index(pkg_info: HelpData) -> str:
     """
     Determine what the full file name of the help index file for the given
     package would be if it was stored locally.
@@ -190,7 +205,7 @@ def local_help_index(pkg_info):
                             pkg_info.index_file[len("Packages/"):]))
 
 
-def format_template(template, *args):
+def format_template(template: str, *args: object) -> str:
     """
     Given incoming text, remove all common indent, then strip away the leading
     and trailing whitespace from it.
@@ -201,7 +216,8 @@ def format_template(template, *args):
     return textwrap.dedent(template % args).strip()
 
 
-def open_local_help(pkg_info, help_file, window=None):
+def open_local_help(pkg_info: HelpData, help_file: str,
+                    window: Optional[sublime.Window] = None) -> None:
     """
     Attempt to open the provided help file locally for editing.
     """
@@ -223,7 +239,8 @@ def open_local_help(pkg_info, help_file, window=None):
         apply_authoring_settings(view)
 
 
-def open_help_index(pkg_info, window=None):
+def open_help_index(pkg_info: HelpData,
+                    window: Optional[sublime.Window] = None) -> None:
     """
     Attempt to open the provided help index file localy for editing.
     """
@@ -244,15 +261,18 @@ def open_help_index(pkg_info, window=None):
     window.open_file(local_path)
 
 
-def apply_authoring_settings(view):
+def apply_authoring_settings(view: sublime.View) -> None:
     """
     Given a view, apply the appropriate settings to it to ensure that it is set
     up properly for editing.
     """
     # Ensure help files with no header get the appropriate syntax set
-    view.assign_syntax(hh_syntax("HyperHelp-Help.sublime-syntax"))
+    syntax = hh_syntax("HyperHelp-Help.sublime-syntax")
+    if syntax is not None:
+        view.assign_syntax(syntax)
 
-    author_view_settings = hha_setting("author_view_settings")
+    author_view_settings = cast(
+        Dict[str, Any], hha_setting("author_view_settings"))
     settings = view.settings()
     for option in author_view_settings:
         settings.set(option, author_view_settings[option])

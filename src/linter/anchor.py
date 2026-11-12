@@ -1,8 +1,13 @@
+from __future__ import annotations
+
+from typing import Optional, Set, Tuple
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
 from HyperHelp.helpcore.core import lookup_help_topic
 from HyperHelp.helpcore.core import parse_anchor_body
+from HyperHelp.helpcore.data import HelpTopic
 
 from ..linter_base import LinterBase
 
@@ -16,7 +21,7 @@ class HelpAnchorLinter(LinterBase):
     anchors contained in that file, such as their not being included in the
     index or being in the wrong file.
     """
-    def lint(self, view, file_name):
+    def lint(self, view: sublime.View, file_name: str) -> None:
         index_topics = {t["topic"] for t in self.pkg_info.help_topics.values()
                         if t["file"] == file_name}
 
@@ -28,7 +33,7 @@ class HelpAnchorLinter(LinterBase):
             index_info = lookup_help_topic(self.pkg_info, topic)
 
             sev, msg = self.validate(seen, topic, text, index_info, file_name)
-            if sev is not None:
+            if sev is not None and msg is not None:
                 self.add(view, sev, file_name, pos.begin(), msg)
             elif not topic.startswith("_"):
                 file_topics.add(topic)
@@ -40,7 +45,9 @@ class HelpAnchorLinter(LinterBase):
                      "Topic '%s' appears in the index but not in '%s'",
                      topic, file_name)
 
-    def validate(self, seen_topics, topic, text, index_info, file_name):
+    def validate(self, seen_topics: Set[str], topic: str, text: str,
+                 index_info: Optional[HelpTopic],
+                 file_name: str) -> Tuple[Optional[str], Optional[str]]:
         if "\u00a0" in topic or "\t" in topic:
             return ("error",
                     "Topic '{}' contains nonbreaking spaces or tabs".format(

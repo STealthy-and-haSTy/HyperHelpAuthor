@@ -1,6 +1,10 @@
+from __future__ import annotations
+
+from typing import Any, Optional, Sequence
+
 import sublime
 
-import imp
+import importlib
 import sys
 
 import textwrap
@@ -9,20 +13,23 @@ import textwrap
 ###----------------------------------------------------------------------------
 
 
-def reload(prefix, modules=None):
+def reload(prefix: str, modules: Optional[Sequence[str]] = None) -> None:
     modules = [""] if modules is None else modules
     prefix = "HyperHelpAuthor.%s." % prefix
 
     for module in modules:
         module = (prefix + module).rstrip(".")
         if module in sys.modules:
-            imp.reload(sys.modules[module])
+            importlib.reload(sys.modules[module])
 
 
 ###----------------------------------------------------------------------------
 
 
 reload("src")
+
+common: Any = None
+CORE_IMPORTED: bool = False
 
 try:
     # Try to import something from HyperHelp first; if this fails, the whole
@@ -31,6 +38,8 @@ try:
 
     # Import all of the commands, event listeners and such.
     from .src import *
+
+    from .src import common as common
 
     # Flag that the core is loaded, so we are good to go.
     CORE_IMPORTED = True
@@ -42,7 +51,7 @@ except Exception:
 ###----------------------------------------------------------------------------
 
 
-def plugin_loaded():
+def plugin_loaded() -> None:
     if CORE_IMPORTED:
         common.loaded()
     else:
@@ -55,7 +64,7 @@ def plugin_loaded():
         """))
 
 
-def plugin_unloaded():
+def plugin_unloaded() -> None:
     if CORE_IMPORTED:
         common.unloaded()
 

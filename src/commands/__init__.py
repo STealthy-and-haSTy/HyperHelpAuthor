@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import List
+
 from ...authoring import reload
 
 reload("src.commands", ["common", "context_edit_help", "context_edit_index",
@@ -15,7 +19,7 @@ from .reload_help import HyperhelpAuthorReloadHelpCommand
 from .reload_index import HyperhelpAuthorReloadIndexCommand
 from .update_header import HyperhelpAuthorUpdateHeaderCommand
 
-__all__ = [
+__all__: List[str] = [
     # Help Files
     "HyperhelpAuthorCreateHelpCommand",
     "HyperhelpAuthorEditHelpCommand",

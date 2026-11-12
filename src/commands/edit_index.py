@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional
+
 import sublime  # noqa: F401
 import sublime_plugin  # noqa: F401
 
@@ -16,7 +20,8 @@ class HyperhelpAuthorEditIndexCommand(AuthorWindowCommand):
     cannot be inferred from the current help view, the user will be prompted to
     supply one. The prompt always occurs if the argument asks.
     """
-    def run(self, package=None, prompt=False):
+    def run(self, package: Optional[str] = None,
+            prompt: bool = False) -> None:
         package = package or current_help_package(window=self.window)
         if package is None or prompt:
             return help_package_prompt(help_index_list(),

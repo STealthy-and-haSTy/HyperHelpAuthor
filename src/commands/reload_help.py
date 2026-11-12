@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sublime
 import sublime_plugin  # noqa: F401
 
@@ -18,11 +20,13 @@ class HyperhelpAuthorReloadHelpCommand(AuthorTextCommand):
     If the current view is a hyperhelp help view, this will reload the file
     currently being displayed in the view.
     """
-    def run(self, edit):
+    def run(self, edit: sublime.Edit) -> None:
         # Running directly on the help view
         settings = self.view.settings()
         if settings.has("_hh_pkg") and settings.has("_hh_file"):
-            return self.reload(self.view, current_help_file())
+            current_file = current_help_file()
+            if current_file is not None:
+                return self.reload(self.view, current_file)
 
         # File must have a name and be in the packages folder.
         name = self.view.file_name()
@@ -34,19 +38,22 @@ class HyperhelpAuthorReloadHelpCommand(AuthorTextCommand):
         pkg = name.split(os.sep)[0]
         file = os.path.split(name)[1]
 
-        if pkg == current_help_package() and file == current_help_file():
-            return self.reload(find_help_view(), file)
+        current_file = current_help_file()
+        if pkg == current_help_package() and current_file is not None and file == current_file:
+            help_view = find_help_view()
+            if help_view is not None:
+                return self.reload(help_view, file)
 
         log("Unable to reload help; this is not the current help file",
             status=True)
 
-    def is_enabled(self):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         if not super().is_enabled():
             return False
 
         return self.view.match_selector(0, "text.hyperhelp.help")
 
-    def reload(self, help_view, help_file):
+    def reload(self, help_view: sublime.View, help_file: str) -> None:
         viewport = help_view.viewport_position()
         caret = help_view.sel()[0].b
 

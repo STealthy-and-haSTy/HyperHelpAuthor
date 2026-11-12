@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Generator, Set
+
 import sublime
 import sublime_plugin  # noqa: F401
 
@@ -26,14 +30,13 @@ header_date_re = re.compile(r'^(%hyperhelp.*\bdate=")(\d{4}-\d{2}-\d{2})(".*)')
 ###----------------------------------------------------------------------------
 
 
-def error_dialog(message, *args):
+def error_dialog(message: str, *args: object) -> None:
     """
     Simple local helper for displaying an error dialog using the log function.
     """
     log(format_template(message, *args), dialog=True)
 
-
-def global_package_list(filter_with_help=True):
+def global_package_list(filter_with_help: bool = True) -> Generator[str, None, None]:
     """
     Yield a list of packages that Sublime currently knows about (those that
     have at least one resource and are not ignored), optionally filtering away
@@ -41,7 +44,7 @@ def global_package_list(filter_with_help=True):
 
     The list is yielded in package load order.
     """
-    pkg_set = set()
+    pkg_set: Set[str] = set()
     for res in sublime.find_resources(''):
         if res.startswith("Packages/"):
             pkg_set.add(res.split("/")[1])
@@ -60,7 +63,7 @@ def global_package_list(filter_with_help=True):
         yield "User"
 
 # TODO: This should use a template from a file resource instead
-def make_help_index(package, doc_root, index_path):
+def make_help_index(package: str, doc_root: str, index_path: str) -> None:
     """
     Create an empty help index for the provided package at the given index
     path location.
@@ -93,7 +96,7 @@ def make_help_index(package, doc_root, index_path):
         handle.write(template)
 
 # TODO: This should use a template from a file resource instead
-def make_root_help(package, help_path):
+def make_root_help(package: str, help_path: str) -> None:
     """
     Create a stub root help file (index.txt) at the provided help path.
     """

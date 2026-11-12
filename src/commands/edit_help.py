@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import List, Optional
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
@@ -16,7 +20,8 @@ class HyperhelpAuthorEditHelpCommand(AuthorWindowCommand):
     given and one cannot be inferred from the current help view, the user will
     be prompted to supply one. The prompt always occurs if the argument asks.
     """
-    def run(self, package=None, file=None, prompt=False):
+    def run(self, package: Optional[str] = None, file: Optional[str] = None,
+            prompt: bool = False) -> None:
         package = package or current_help_package(window=self.window)
         if package is None or prompt:
             return help_package_prompt(help_index_list(),
@@ -28,7 +33,7 @@ class HyperhelpAuthorEditHelpCommand(AuthorWindowCommand):
                        dialog=True)
 
         files = pkg_info.help_files
-        items = [[key, files[key]] for key in files]
+        items: List[List[str]] = [[key, files[key]] for key in files]
 
         if not items:
             return log("The help index for '%s' lists no help files", package,
@@ -37,7 +42,7 @@ class HyperhelpAuthorEditHelpCommand(AuthorWindowCommand):
         if file is not None:
             return open_local_help(pkg_info, file, window=self.window)
 
-        def pick(index):
+        def pick(index: int) -> None:
             if index >= 0:
                 open_local_help(pkg_info, items[index][0], window=self.window)
 

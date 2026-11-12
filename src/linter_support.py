@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Dict, List, Optional, Union
+
 import sublime
 import sublime_plugin  # noqa: F401
 
@@ -7,8 +11,9 @@ import codecs
 
 from HyperHelp.helpcore.common import hh_syntax
 from HyperHelp.helpcore.core import help_index_list
+from HyperHelp.helpcore.data import HelpData
 
-from .linter_base import LintTarget
+from .linter_base import LintResult, LintTarget
 from .common import hha_setting
 
 from .linter import HelpAnchorLinter
@@ -17,12 +22,14 @@ from .linter import MissingHelpSourceLinter
 from .linter import MismatchingTitleLinter
 from .linter import MissingInTOCLinter
 from .linter import UnlinkedHelpFilesLinter
+from .linter_base import LinterBase
 
 
 ###----------------------------------------------------------------------------
 
 
-def _find_or_create_output_view(window, target):
+def _find_or_create_output_view(window: sublime.Window,
+                                target: LintTarget) -> sublime.View:
     """
     Find or create a view in the current window for putting the lint output in.
     This is used when lint_output_to_view is set to True to create the view for
@@ -53,19 +60,23 @@ def _find_or_create_output_view(window, target):
 ###----------------------------------------------------------------------------
 
 
-def can_lint_view(view):
+def can_lint_view(view: Optional[sublime.View]) -> bool:
     """
     Determine if the provided view can be the source of a lint. To be valid
     the view must represent a hyperhelp data file that has a path rooted in the
     Packages folder inside of a package whose help index is known.
     """
-    if (view is not None and view.file_name() is not None and
-            view.file_name().startswith(sublime.packages_path()) and
+    if view is None:
+        return False
+
+    file_name = view.file_name()
+    if (file_name is not None and
+            file_name.startswith(sublime.packages_path()) and
             view.match_selector(0, "text.hyperhelp")):
 
         # Make the path relative to the packages folder, then throw the
         # filename away, which should be a document root.
-        name = os.path.relpath(view.file_name(), sublime.packages_path())
+        name = os.path.relpath(file_name, sublime.packages_path())
         name = os.path.split(name)[0].replace("\\", "/")
 
         for info in help_index_list().values():
@@ -75,26 +86,33 @@ def can_lint_view(view):
     return False
 
 
-def find_lint_target(view):
+def find_lint_target(view: Optional[sublime.View]) -> Optional[LintTarget]:
     """
     Examine a given view and return a LintTarget that describes what is being
     linted. None is returned if the view is not a valid lint target.
     """
-    if not can_lint_view(view):
+    if not can_lint_view(view) or view is None:
+        return None
+
+    file_name = view.file_name()
+    if file_name is None:
         return None
 
     # Make the path relative to the packages folder, then get both the path
     # and the file name parts.
-    name = os.path.relpath(view.file_name(), sublime.packages_path())
+    name = os.path.relpath(file_name, sublime.packages_path())
     name, target = os.path.split(name)
     name = name.replace("\\", "/")
 
     # Use the location as the document root to find the appropriate package.
+    pkg_info: Optional[HelpData] = None
     for info in help_index_list().values():
         if info.doc_root == name:
-            pkg_name = info.package
+            pkg_info = info
+            break
 
-    pkg_info = help_index_list().get(pkg_name)
+    if pkg_info is None:
+        return None
 
     if view.match_selector(0, "text.hyperhelp.help"):
         return LintTarget("single", pkg_info, [target])
@@ -102,7 +120,7 @@ def find_lint_target(view):
     return LintTarget("package", pkg_info, list(pkg_info.help_files))
 
 
-def get_linters(target):
+def get_linters(target: LintTarget) -> List[LinterBase]:
     """
     Given a LintTarget, return back an array of all of the linters that should
     be run for that target.
@@ -111,7 +129,7 @@ def get_linters(target):
     allowed on a file by file basis. The returned linters may also be affected
     by user settings.
     """
-    linters = []
+    linters: List[LinterBase] = []
     linters.append(HelpAnchorLinter(target.pkg_info))
     linters.append(HelpLinkLinter(target.pkg_info))
 
@@ -124,7 +142,7 @@ def get_linters(target):
     return linters
 
 
-def get_lint_file(filename):
+def get_lint_file(filename: str) -> Optional[sublime.View]:
     """
     Return a view that that contains the contents of the provided file name.
     If the file is not aready loaded, it is loaded into a hidden view and that
@@ -150,13 +168,16 @@ def get_lint_file(filename):
         view.run_command("select_all")
         view.run_command("left_delete")
         view.run_command("append", {"characters": content})
-        view.assign_syntax(hh_syntax("HyperHelp-Help.sublime-syntax"))
+        syntax = hh_syntax("HyperHelp-Help.sublime-syntax")
+        if syntax is not None:
+            view.assign_syntax(syntax)
         return view
 
     return None
 
 
-def format_lint(target, issues, window=None):
+def format_lint(target: LintTarget, issues: List[LintResult],
+                window: Optional[sublime.Window] = None) -> List[str]:
     """
     Takes a list of LintResult issues for a package and returns back output
     suitable for passing to display_lint().
@@ -164,7 +185,7 @@ def format_lint(target, issues, window=None):
     If a window is provided, display_lint() is called prior to returning in
     order to display the output first.
     """
-    files = OrderedDict()
+    files: Dict[str, List[LintResult]] = OrderedDict()
     for issue in issues:
         if issue.file not in files:
             files[issue.file] = []
@@ -207,7 +228,8 @@ def format_lint(target, issues, window=None):
     return output
 
 
-def display_lint(window, target, output):
+def display_lint(window: sublime.Window, target: LintTarget,
+                 output: Union[str, List[str]]) -> None:
     """
     Display the lint output provided into the given window. The output is
     assumed to have been generated from the provided package, which is used to
@@ -217,6 +239,7 @@ def display_lint(window, target, output):
         prev_view = window.active_view()
         view = _find_or_create_output_view(window, target)
     else:
+        prev_view = None
         view = window.create_output_panel("HyperHelpAuthor Lint", False)
 
     basedir = os.path.join(sublime.packages_path(), target.pkg_info.doc_root)
@@ -225,7 +248,9 @@ def display_lint(window, target, output):
     if not isinstance(output, str):
         output = "\n".join(output)
 
-    view.assign_syntax(hh_syntax("HyperHelpLinter.sublime-syntax"))
+    syntax = hh_syntax("HyperHelpLinter.sublime-syntax")
+    if syntax is not None:
+        view.assign_syntax(syntax)
 
     settings = view.settings()
     settings.set("result_base_dir", basedir)
@@ -239,7 +264,8 @@ def display_lint(window, target, output):
     if hha_setting("lint_output_to_view"):
         # In views, find results fail until the focus is lost and regained.
         # This is a bug in Sublime, so work around it by changing the focus.
-        window.focus_view(prev_view)
+        if prev_view is not None:
+            window.focus_view(prev_view)
         window.focus_view(view)
     else:
         window.run_command("show_panel", {"panel": "output.HyperHelpAuthor Lint"})

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
@@ -10,16 +12,20 @@ from ..common import AuthorTextCommand
 
 
 class HyperhelpAuthorContextEditHelpCommand(AuthorTextCommand):
-    def run(self, edit):
-        pkg = current_help_package(self.view, self.view.window())
-        file = current_help_file(self.view, self.view.window())
+    def run(self, edit: sublime.Edit) -> None:
+        window = self.view.window()
+        if window is None:
+            return
 
-        self.view.window().run_command("hyperhelp_author_edit_help", {
+        pkg = current_help_package(self.view, window)
+        file = current_help_file(self.view, window)
+
+        window.run_command("hyperhelp_author_edit_help", {
             "package": pkg,
             "file": file
             })
 
-    def is_enabled(self):
+    def is_enabled(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         if not super().is_enabled():
             return False
 
@@ -28,7 +34,7 @@ class HyperhelpAuthorContextEditHelpCommand(AuthorTextCommand):
 
         return False
 
-    def is_visible(self):
+    def is_visible(self, *args: sublime.Value, **kwargs: sublime.Value) -> bool:
         return self.is_enabled()
 
 

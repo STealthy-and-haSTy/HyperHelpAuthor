@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
@@ -22,7 +24,7 @@ class HyperhelpAuthorUpdateHeaderCommand(AuthorTextCommand):
     modified date field, this will update the date field to be the current
     date. Quiet controls if the status line shows status about this or not.
     """
-    def run(self, edit, quiet=False):
+    def run(self, edit: sublime.Edit, quiet: bool = False) -> None:
         now = datetime.date.today().strftime("%Y-%m-%d")
 
         h_line = self.view.line(0)
@@ -40,7 +42,8 @@ class HyperhelpAuthorUpdateHeaderCommand(AuthorTextCommand):
             log(msg, status=True)
 
 
-    def is_enabled(self, quiet=False):
+    def is_enabled(self, quiet: bool = False, *args: sublime.Value,
+                   **kwargs: sublime.Value) -> bool:
         if not super().is_enabled():
             return False
 

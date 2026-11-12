@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sublime  # noqa: F401
 import sublime_plugin
 
@@ -8,7 +10,7 @@ from .common import is_hyperhelp_enabled
 ###----------------------------------------------------------------------------
 
 
-def _apply_author_settings(view):
+def _apply_author_settings(view: sublime.View) -> None:
     """
     If this view has the setting that indicates that this is an authoring view
     that was just opened or created, remove the setting and apply the authoring
@@ -23,7 +25,7 @@ def _apply_author_settings(view):
 
 
 class HyperhelpAuthorEventListener(sublime_plugin.EventListener):
-    def on_pre_save(self, view):
+    def on_pre_save(self, view: sublime.View) -> None:
         """
         If the file about to be saved is a help file, try to update the date
         in the header.
@@ -36,7 +38,7 @@ class HyperhelpAuthorEventListener(sublime_plugin.EventListener):
         if hha_setting("update_header_on_save") and is_authoring_source(view):
             view.run_command("hyperhelp_author_update_header", {"quiet": True})
 
-    def on_post_save(self, view):
+    def on_post_save(self, view: sublime.View) -> None:
         if not is_hyperhelp_enabled():
             return
 
@@ -44,7 +46,7 @@ class HyperhelpAuthorEventListener(sublime_plugin.EventListener):
             if view.match_selector(0, "text.hyperhelp.index"):
                 view.run_command("hyperhelp_author_reload_index")
 
-    def on_load(self, view):
+    def on_load(self, view: sublime.View) -> None:
         """
         If the view is a help file that is marked as being opened by the
         authoring tool, apply the appropriate authoring settings to it to make

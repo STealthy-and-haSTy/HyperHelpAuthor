@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import List
+
 from ...authoring import reload
 
 reload("src.linter", ["common", "base", "anchor", "link",
@@ -10,7 +14,7 @@ from .missing_help_source import MissingHelpSourceLinter
 from .missing_in_toc import MissingInTOCLinter
 from .unlinked_files import UnlinkedHelpFilesLinter
 
-__all__ = [
+__all__: List[str] = [
     # Linters
     "HelpAnchorLinter",
     "HelpLinkLinter",

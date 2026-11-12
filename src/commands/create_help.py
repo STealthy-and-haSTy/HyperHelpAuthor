@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional
+
 import sublime         # noqa: F401
 import sublime_plugin  # noqa: F401
 
@@ -24,7 +28,8 @@ class HyperhelpAuthorCreateHelpCommand(AuthorWindowCommand):
     one cannot be inferred from the current help view, the user will be
     prompted to supply one. The prompt always occurs if the argument asks.
     """
-    def run(self, package=None, file=None, prompt=False):
+    def run(self, package: Optional[str] = None, file: Optional[str] = None,
+            prompt: bool = False) -> None:
         package = package or current_help_package(window=self.window)
         if package is None or prompt:
             return help_package_prompt(help_index_list(),
@@ -38,14 +43,18 @@ class HyperhelpAuthorCreateHelpCommand(AuthorWindowCommand):
             return self.create_file(package, file)
 
         self.window.show_input_panel("New Help File (%s)" % package, "",
-                                     lambda file: self.create_file(package, file),
+                                     lambda new_file: self.create_file(package, new_file),
                                      None, None)
 
-    def create_file(self, package, file):
+    def create_file(self, package: str, file: str) -> None:
         if not file:
             return log("No help file given; skipping creation", status=True)
 
         pkg_info = help_index_list().get(package)
+        if pkg_info is None:
+            return log("Cannot add help file; package '%s' unknown", package,
+                       dialog=True)
+
         local_path = local_help_filename(pkg_info, file)
 
         help_file = os.path.split(local_path)
