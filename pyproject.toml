@@ -1,0 +1,28 @@
+[tool.ruff]
+target-version = "py38"
+line-length = 80
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "B"]
+ignore = ["E731"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["E402", "F401", "F403", "F405"]
+"authoring.py" = ["F403", "F405"]
+
+[tool.pyright]
+pythonVersion = "3.8"
+typeCheckingMode = "standard"
+
+reportUnusedImport = "none"
+reportUnusedVariable = "none"
+reportUnusedClass = "none"
+reportUnusedFunction = "none"
+reportUnusedExpression = "none"
+reportUnusedCoroutine = "none"
+reportDuplicateImport = "none"
+reportWildcardImportFromLibrary = "none"
+#reportShadowedImports = "none"
+
+reportMissingTypeStubs = "none"
+reportMissingModuleSource = "none"

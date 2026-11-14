@@ -1,4 +1,4 @@
-import sublime
+import sublime  # noqa: F401
 import sublime_plugin
 
 from .common import hha_setting, is_authoring_source, apply_authoring_settings

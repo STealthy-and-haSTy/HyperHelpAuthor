@@ -1,5 +1,5 @@
-import sublime
-import sublime_plugin
+import sublime         # noqa: F401
+import sublime_plugin  # noqa: F401
 
 from HyperHelp.helpcore.common import current_help_package, current_help_file
 

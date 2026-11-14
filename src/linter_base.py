@@ -1,14 +1,8 @@
-import sublime
-import sublime_plugin
+import sublime         # noqa: F401
+import sublime_plugin  # noqa: F401
 
 import os
-from collections import OrderedDict, namedtuple
-import codecs
-
-from HyperHelp.helpcore.common import log, hh_syntax
-from HyperHelp.helpcore.core import help_index_list, lookup_help_topic
-from HyperHelp.helpcore.core import parse_help_header, parse_anchor_body, parse_link_body
-from HyperHelp.helpcore.core import is_topic_file_valid
+from collections import namedtuple
 
 
 

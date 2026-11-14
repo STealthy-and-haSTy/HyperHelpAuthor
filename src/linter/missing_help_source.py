@@ -1,5 +1,5 @@
 import sublime
-import sublime_plugin
+import sublime_plugin  # noqa: F401
 
 from ..linter_base import LinterBase
 

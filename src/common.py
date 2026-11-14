@@ -165,7 +165,7 @@ def package_for_view(view):
         spp = sublime.packages_path()
         if view.file_name().startswith(spp):
             file_name = view.file_name()[len(spp)+1:]
-            for pkg_name, pkg_info in help_index_list().items():
+            for pkg_info in help_index_list().values():
                 if file_name.startswith(pkg_info.doc_root):
                     return pkg_info
 
